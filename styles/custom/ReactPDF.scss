@@ -1,0 +1,12 @@
+.react-pdf__Page {
+  margin-top: 20px;
+
+  &:last-child {
+    margin-bottom: 20px;
+  }
+}
+
+.react-pdf__Page__textContent {
+  border: 1px solid darkgrey;
+  box-shadow: 5px 5px 5px 1px #ccc;
+}

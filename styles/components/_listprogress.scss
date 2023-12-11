@@ -1,0 +1,176 @@
+.card-listprogress {
+  height: 495px;
+  width: 100%;
+  background-color: #f3f2f7;
+  box-shadow: none;
+}
+.ellipse-listprogress {
+  width: 85%;
+  height: 145.5px;
+  border-radius: 0.428rem;
+}
+.title-listprogress {
+  z-index: 1;
+  position: absolute;
+  margin-left: 38px;
+  margin-top: 37px;
+  width: 153.2px;
+  font-family: Montserrat;
+  font-size: 21px;
+  font-weight: 500px;
+  color: white;
+}
+.num-listprogress {
+  color: #f3f2f7;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #c4c4c4;
+  z-index: 2;
+  position: absolute;
+  margin-top: 87px;
+  margin-left: 60%;
+  font-size: 36px;
+  line-height: 2.2;
+  align-items: center;
+  text-align: center;
+}
+.row1-listprogress {
+  width: 80%;
+  height: 90px;
+  margin-left: 38px !important;
+  margin-top: 43px;
+}
+.row2-listprogress {
+  width: 196.97px;
+  height: 48px;
+  padding-right: 100%;
+  margin-left: 38px !important;
+}
+.hr-listprogress {
+  margin-top: 30px;
+  margin-bottom: 30px;
+  border-top: 1px solid #c4c4c4;
+  width: 60%;
+  margin-left: 40px !important;
+}
+.sub-listprogress {
+  color: #7367f0;
+  font-family: Montserrat;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 17px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+.content-listprogress {
+  font-size: 12px;
+  margin-bottom: 0px;
+}
+
+.div-image-question {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  margin-top: 5px;
+}
+
+.div-image-detail-question {
+  max-width: 100%;
+  height: auto;
+  width: 300px; /* Adjust the width as needed */
+  max-height: 400px; /* Adjust the maximum height as needed */
+  object-fit: cover; /* Crop or scale the image to fit within the specified dimensions */
+  border-radius: 8px; /* Add rounded corners to the image */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a box shadow to the image */
+}
+
+.btn-blue {
+  background-color: #1ad3d6 !important;
+  border-color: white !important;
+  color: white !important;
+}
+
+.form-row {
+  background-color: #f2f2f2;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.form-tabs {
+  margin-bottom: 10px;
+}
+
+.form-tab {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.text-black {
+  color: black !important;
+}
+
+// editor rich text
+.ql-editor {
+  min-height: 200px;
+}
+
+/* Style for invalid input fields */
+.is-invalid {
+  border-color: #ff0000; /* Red border for invalid inputs */
+}
+
+/* Style for error messages */
+.invalid-feedback {
+  color: #ff0000; /* Red text color for error messages */
+  font-size: 14px;
+  margin-top: 4px; /* Add spacing between input and error message */
+}
+
+/* Style for the radio buttons container */
+.radio-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Style for individual radio buttons */
+.radio-input {
+  /* Add your custom radio button styles here */
+}
+
+/* Style for radio button labels */
+.radio-label {
+  margin-right: 10px; /* Add spacing between radio button and label */
+}
+
+/* Style for the error message */
+.error-message {
+  color: #ff0000; /* Red text color for error messages */
+  font-size: 14px;
+  margin-top: 4px; /* Add spacing between radio buttons and error message */
+}
+
+/* styles.css */
+.table-responsive {
+  font-size: 14px;
+  margin-top: 15px;
+}
+
+/* Media query for mobile devices */
+@media (max-width: 768px) {
+  .table-responsive {
+    font-size: 12px;
+    margin-top: 10px;
+  }
+}
+
+/* styles.css */
+.card-custom-inspection {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}

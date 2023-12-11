@@ -1,0 +1,24 @@
+// @import "../node_modules/prismjs/themes/prism-tomorrow";
+
+@import "../node_modules/@uppy/core/dist/style.css";
+@import "../node_modules/@uppy/drag-drop/dist/style.css";
+@import "../node_modules/@uppy/file-input/dist/style.css";
+@import "../node_modules/@uppy/progress-bar/dist/style.css";
+@import "../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+// @import "../node_modules/swiper/swiper.scss";
+
+@import "./@core/core.scss";
+
+@import "./components/listprogress";
+@import "./components/ecommerce";
+@import "./custom/Modal.scss";
+
+@import "./components/documentstatus";
+@import "./components/form";
+@import "./components/table2";
+
+@import "./custom/Home.scss";
+@import "./custom/scrollbar";
+@import "./custom/animation";
+@import "./custom/size";
+@import "./custom/ReactPDF.scss"

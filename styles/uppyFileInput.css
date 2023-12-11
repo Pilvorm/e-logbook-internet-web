@@ -1,0 +1,13 @@
+/* .uppy-FileInput-container{
+    margin-bottom:15px
+} */
+.uppy-FileInput-btn{
+    width: 100%;
+    background:none;
+    border:none;
+    color:inherit;
+    color:white;
+    cursor:pointer;
+    padding:2px;
+
+}

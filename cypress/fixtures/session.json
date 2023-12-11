@@ -1,0 +1,26 @@
+{
+  "user": {
+    "upn": "user.one@kalbe.co.id",
+    "email": "emihaikalemir@gmail.com",
+    "username": "user.one@kalbe.co.id",
+    "name": "User One",
+    "mobileNo": "080900001111",
+    "bu": "Corporate IT & System",
+    "sbu": "Corporate Function",
+    "buId": "49344ee4-f246-43b4-96df-23724fee59b4",
+    "sbuId": "35b7a4e1-8186-4357-8900-ba33f03b7dba",
+    "nik": "0001",
+    "clusterCode": "KF",
+    "jobTitle": "",
+    "rankName": "Innovator",
+    "rankId": "7",
+    "experiencePoint": "260167",
+    "nextLevelExperiencePoint": "100000",
+    "badgeWithLevel": null,
+    "userRole": "1,2,3,4,5,6,7,0,8,2,6",
+    "profilePicturePath": "",
+    "tosAccepted": true,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVUE4iOiJ1c2VyLm9uZUBrYWxiZS5jby5pZCIsIkVtYWlsIjoiZW1paGFpa2FsZW1pckBnbWFpbC5jb20iLCJOYW1lIjoiVXNlciBPbmUiLCJNb2JpbGVObyI6IjA4MDkwMDAwMTExMSIsIk5JSyI6IjAwMDEiLCJDbHVzdGVyQ29kZSI6IktGIiwiQlUiOiJDb3Jwb3JhdGUgSVQgJiBTeXN0ZW0iLCJTQlUiOiJDb3Jwb3JhdGUgRnVuY3Rpb24iLCJCVUlkIjoiNDkzNDRlZTQtZjI0Ni00M2I0LTk2ZGYtMjM3MjRmZWU1OWI0IiwiU0JVSWQiOiIzNWI3YTRlMS04MTg2LTQzNTctODkwMC1iYTMzZjAzYjdkYmEiLCJKb2JUdGxOYW1lIjoiIiwiUmFua05hbWUiOiJJbm5vdmF0b3IiLCJSYW5rSWQiOiI3IiwiRXhwZXJpZW5jZVBvaW50IjoiMjYwMTY3IiwiTmV4dExldmVsRXhwZXJpZW5jZVBvaW50IjoiMTAwMDAwIiwiVXNlclJvbGUiOiIxLDIsMyw0LDUsNiw3LDAsOCwyLDYiLCJQcm9maWxlUGljdHVyZVBhdGgiOiIiLCJUb3NBY2NlcHRlZCI6IlRydWUiLCJuYmYiOjE2Nzg0MTYyMjIsImV4cCI6MTY3OTAyMTAyMiwiaWF0IjoxNjc4NDE2MjIyfQ.wVnpAzvUC0I2VLdfx9se0RWayr8QGztiTweASVVnVa0"
+  },
+  "expires": "3000-01-01T00:00:00.000Z"
+}
