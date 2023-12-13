@@ -40,8 +40,15 @@ import debounce from "lodash/debounce";
 import UserOptionItem from "components/UserOptionItem";
 import FormikDatePicker from "components/CustomInputs/CustomDatePicker";
 
+import { getAsyncOptionsSchool } from "helpers/master/masterSchool";
+import { getAsyncOptionsFaculty } from "helpers/master/masterFaculty";
+
+import { getSchoolAsyncSelect } from "redux/actions/master/school";
+import { getFacultyAsyncSelect } from "redux/actions/master/faculty";
+import { wrapper } from "redux/store";
+
 const LoginPage = (props) => {
-  const { csrfToken, query } = props;
+  const { dataSchool, dataFaculty, csrfToken, query } = props;
   const isMobileWidth = useMobileDetector();
   const router = useRouter();
   const [loginLoading, setLoginLoading] = useState(false);
@@ -83,6 +90,24 @@ const LoginPage = (props) => {
     debounce((inputText, callback) => {
       if (inputText) {
         getAsyncOptionsName(inputText).then((options) => callback(options));
+      }
+    }, 1000),
+    []
+  );
+
+  const loadOptionsSchool = useCallback(
+    debounce((inputText, callback) => {
+      if (inputText) {
+        getAsyncOptionsSchool(inputText).then((options) => callback(options));
+      }
+    }, 1000),
+    []
+  );
+
+  const loadOptionsFaculty = useCallback(
+    debounce((inputText, callback) => {
+      if (inputText) {
+        getAsyncOptionsFaculty(inputText).then((options) => callback(options));
       }
     }, 1000),
     []
@@ -460,12 +485,14 @@ const LoginPage = (props) => {
                           <Label className="form-label font-weight-bold">
                             School/College
                           </Label>
-                          <Input
-                            id="school"
-                            type="text"
-                            placeholder="School/College"
-                            value={"Binus University"}
-                            onChange={handleChange("school")}
+                          <AsyncSelect
+                            id="companyCode"
+                            name="companyCode"
+                            classNamePrefix="select"
+                            cacheOptions
+                            defaultOptions={dataSchool}
+                            loadOptions={loadOptionsSchool}
+                            placeholder="Choose..."
                           />
                           {errors.school && (
                             <div className="text-danger">{errors.school}</div>
@@ -482,14 +509,8 @@ const LoginPage = (props) => {
                             name="companyCode"
                             classNamePrefix="select"
                             cacheOptions
-                            value={{
-                              label: selectedDepartment.label,
-                              value: selectedDepartment.value,
-                            }}
-                            defaultOptions={DEPARTMENT_DATA}
-                            onChange={(e) => {
-                              setSelectedDepartment(e);
-                            }}
+                            defaultOptions={dataFaculty}
+                            loadOptions={loadOptionsFaculty}
                             placeholder="Choose..."
                           />
                           {errors.faculty && (
@@ -616,27 +637,34 @@ const LoginPage = (props) => {
   );
 };
 
-export async function getServerSideProps(ctx) {
-  const { query, req, res } = ctx;
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (ctx) => {
+    const { query, req, res } = ctx;
 
-  const sessionData = await getSession(ctx);
+    const sessionData = await getSession(ctx);
 
-  if (sessionData) {
+    if (sessionData) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
+    const dataSchool = await store.dispatch(getSchoolAsyncSelect());
+    const dataFaculty = await store.dispatch(getFacultyAsyncSelect());
+
     return {
-      redirect: {
-        destination: "/",
-        permanent: false,
+      props: {
+        csrfToken: await getCsrfToken(ctx),
+        authError: query.error ? true : false,
+        query: query,
+        dataSchool,
+        dataFaculty,
       },
     };
   }
-
-  return {
-    props: {
-      csrfToken: await getCsrfToken(ctx),
-      authError: query.error ? true : false,
-      query: query,
-    },
-  };
-}
+);
 
 export default LoginPage;
