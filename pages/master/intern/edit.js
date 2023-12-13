@@ -49,7 +49,7 @@ import FormikDatePicker from "components/CustomInputs/CustomDatePicker";
 import debounce from "lodash/debounce";
 
 const MasterInternDetail = (props) => {
-  const { dataRoles, dataMasterUser, sessionData, token } = props;
+  const { dataRoles, sessionData, token } = props;
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -67,18 +67,6 @@ const MasterInternDetail = (props) => {
 
   // Handling user profile search
   const [selectedName, setSelectedName] = useState([]);
-  const [userExist, setUserExist] = useState(false);
-
-  const findUser = (name) => {
-    const result = dataMasterUser.data.find(
-      (user) => user.name.toUpperCase() == name
-    );
-    if (result) {
-      setUserExist(true);
-    } else {
-      setUserExist(false);
-    }
-  };
 
   // handling search site
   const getAsyncOptionsCompany = (inputText) => {
@@ -571,22 +559,21 @@ export const getServerSideProps = wrapper.getServerSideProps(
     await store.dispatch(getAllRoles());
     const dataRoles = store.getState().masterRoleReducers;
 
-    await store.dispatch(
-      getAllMasterUser(
-        query.pageNumber || 1,
-        query.pageSize || 1000,
-        query.search || "",
-        query.name || ""
-      )
-    );
+    // await store.dispatch(
+    //   getAllMasterUser(
+    //     query.pageNumber || 1,
+    //     query.pageSize || 1000,
+    //     query.search || "",
+    //     query.name || ""
+    //   )
+    // );
 
-    const dataMasterUser = store.getState().masterUserReducers;
+    // const dataMasterUser = store.getState().masterUserReducers;
 
     return {
       props: {
         token: sessionData.user.token,
         dataRoles,
-        dataMasterUser,
         sessionData,
       },
     };

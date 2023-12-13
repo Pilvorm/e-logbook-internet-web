@@ -1,8 +1,10 @@
+import { SITE_DATA, DEPARTMENT_DATA } from "constant";
 import Link from "next/link";
 import Image from "next/image";
 import InputPasswordToggle from "src/@core/components/input-password-toggle";
 import {
   Card,
+  Container,
   Row,
   Col,
   CardTitle,
@@ -15,7 +17,7 @@ import {
   Spinner,
 } from "reactstrap";
 import { getCsrfToken, getSession, signIn } from "next-auth/react";
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer, useCallback } from "react";
 import metadata from "appsettings.json";
 import InputUsernameIcon from "src/@core/components/input-username-icon";
 import { useRouter } from "next/router";
@@ -29,8 +31,14 @@ import { onLoginGuest } from "helpers/auth";
 import jwt_decode from "jwt-decode";
 import useMobileDetector from "components/useMobileDetector";
 const sign = require("jwt-encode");
+import AsyncSelect from "react-select/async";
 import { FieldArray, Formik } from "formik";
 import * as yup from "yup";
+import { Search, Save, Plus, Trash, ArrowLeft } from "react-feather";
+import { searchRole, searchUser } from "helpers/master/masterRole";
+import debounce from "lodash/debounce";
+import UserOptionItem from "components/UserOptionItem";
+import FormikDatePicker from "components/CustomInputs/CustomDatePicker";
 
 const LoginPage = (props) => {
   const { csrfToken, query } = props;
@@ -49,6 +57,37 @@ const LoginPage = (props) => {
 
   const [detailForm, setDetailForm] = useState(false);
 
+  const [selectedCompany, setSelectedCompany] = useState({
+    label: "Search...",
+    value: "",
+  });
+
+  const [selectedDepartment, setSelectedDepartment] = useState({
+    label: "Choose...",
+    value: "",
+  });
+
+  const [selectedMentor, setSelectedMentor] = useState([]);
+
+  const getAsyncOptionsName = (inputText) => {
+    return searchUser(inputText).then((resp) => {
+      return resp.data.items.map((singleData) => ({
+        ...singleData,
+        value: singleData.nik,
+        label: singleData.name,
+      }));
+    });
+  };
+
+  const loadOptionsName = useCallback(
+    debounce((inputText, callback) => {
+      if (inputText) {
+        getAsyncOptionsName(inputText).then((options) => callback(options));
+      }
+    }, 1000),
+    []
+  );
+
   useEffect(() => {
     if (query.error == "true") {
       setTimeout(() => {
@@ -62,113 +101,69 @@ const LoginPage = (props) => {
     }
   }, []);
 
-  const AlertError = () => {
-    errorAlertNotificationGlobal(
-      "Error",
-      <div
-        dangerouslySetInnerHTML={{
-          __html: `Error: Anda gagal login. Mohon dicoba login ke <a href="https://sentinel.onekalbe.com/identity" target="_blank">Sentinel</a>, jika berhasil silakan menghubungi tim helpdesk untuk pembuatan ticket incident untuk apps ini, 
-      sedangkan jika gagal login di sentinel mohon menghubungi helpdesk untuk pengecekan user domain anda. helpdesk dapat dihubungi dengan cara sbb :</br>
-      <ul><li>helpdesk.kalbe.co.id</li><li>WA : 0811-1528-080</li><li>phone : 021-42873888 ext 2222</li></ul>terima kasih.`,
-        }}
-      ></div>
-    );
-    return <div />;
-  };
-
-  const onResendCode = async () => {
-    if (typeof window !== "undefined") {
-      const nameEncode = localStorage.getItem("name");
-      const emailEncode = localStorage.getItem("email");
-      const name = jwt_decode(nameEncode);
-      const email = jwt_decode(emailEncode);
-      await onLoginGuest({ name, email })
-        .then((res) => {
-          return successAlertNotification(
-            "Success",
-            "Security code telah dikirimkan ke email anda, silakan masukkan security code yang telah dikirimkan tersebut."
-          );
-        })
-        .catch((err) => console.log(err, "ini err <<<<<"));
-    }
-  };
-
-  const AlertErrorValidate = () => {
-    if (query.invalid == "true") {
-      errorAlertNotification(
-        "Error",
-        "Silahkan input security code dengan benar"
-      );
-    } else {
-      errorAlertNotificationCode("Error", "", () => onResendCode());
-    }
-    return <div />;
-  };
-
-  // onSubmit
-  const onSubmit = (values, actions) => {
-    const {
-      nik,
-      userPrincipalName,
-      name,
-      email,
-      jobTitle,
-      deptName,
-      compCode,
-      compName,
-    } = values;
-
-    let bodyData = {
-      userPrincipalName,
-      nik,
-      name,
-      email,
-      jobTitle,
-      deptName,
-      userRoles: role,
-      compCode,
-      compName,
-      createdDate: new Date(),
-      createdBy: sessionData?.user?.UserPrincipalName || "",
-      updatedDate: new Date(),
-      updatedBy: sessionData?.user?.UserPrincipalName || "",
+  const handleContinue = async (e) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    const loginData = {
+      name: name,
+      email: email,
     };
-
-    if (bodyData.userRoles.length === 0) {
-      return errorAlertNotification("Validation Error", `Please select a role`);
-    }
-
-    if (bodyData.userPrincipalName.length === 0) {
+    if (name === null || name === "") {
+      setLoginLoading(false);
       return errorAlertNotification(
-        "Validation Error",
-        `Username for ${bodyData.name} is not found, please contact helpdesk for further information.`
+        "Error",
+        "Mohon mengisi Name terlebih dahulu"
       );
     }
-
-    confirmAlertNotification(
-      "Add New User",
-      "Are you sure to add new user?",
-      () => {
-        actions.setSubmitting(true);
-        dispatch(createMasterUser(bodyData)).then((res) => {
-          if (res.status >= 200 && res.status <= 300) {
-            actions.setSubmitting(false);
-            successAlertNotification("Success", "Data saved succesfully");
-            router.push("/master/user");
-          } else {
-            actions.setSubmitting(false);
-            console.error(res);
-            errorAlertNotification(
-              "Error",
-              res?.data?.message ? res?.data?.message : "Failed to save data"
-            );
+    if (email === null || email === "") {
+      setLoginLoading(false);
+      return errorAlertNotification(
+        "Error",
+        "Mohon mengisi Email terlebih dahulu"
+      );
+    }
+    const regex =
+      /^([A-Za-z0-9_\-\.])+\@(?!(?:[A-Za-z0-9_\-\.]+\.)?com\.com)([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+    if (!regex.test(email)) {
+      setLoginLoading(false);
+      return errorAlertNotification(
+        "Error",
+        "Format alamat email yang anda input salah"
+      );
+    }
+    try {
+      return onLoginGuest(loginData)
+        .then((data) => {
+          if (data.status === 400) {
+            setLoginLoading(false);
+            let a = "";
+            if (data.statusText.Name) {
+              setErrorMessage(data.statusText.Name[0] ?? "");
+              a = data.statusText.Name[0];
+            } else {
+              setErrorMessage(data.statusText.Email[0] ?? "");
+              a = data.statusText.Email[0];
+            }
+            setError(true);
+            return errorAlertNotification("Error", a);
           }
-        });
-      },
-      () => {
-        actions.setSubmitting(false);
-      }
-    );
+          if (data.securityCode) {
+            const emailEncode = sign(email, secret);
+            const nameEncode = sign(name, secret);
+            localStorage.setItem("name", nameEncode);
+            localStorage.setItem("email", emailEncode);
+            if (typeof window !== "undefined") {
+            }
+            router.push({
+              pathname: router.pathname,
+              query: `validate=${true}`,
+            });
+          }
+        })
+        .catch((err) => console.log(err));
+    } catch (error) {
+      throw new Error("There was an error on user authentication");
+    }
   };
 
   const validationSchema = yup
@@ -181,11 +176,21 @@ const LoginPage = (props) => {
     })
     .required();
 
+  const DropdownIndicator = (props) => {
+    return (
+      <Search
+        set="light"
+        primaryColor="blueviolet"
+        style={{ padding: "4px", marginRight: "2px" }}
+      />
+    );
+  };
+
   return (
     <Formik
       enableReinitialize
       validationSchema={validationSchema}
-      onSubmit={onSubmit}
+      // onSubmit={onSubmit}
     >
       {({
         values,
@@ -195,7 +200,7 @@ const LoginPage = (props) => {
         handleChange,
         isSubmitting,
       }) => (
-        <div className="auth-wrapper auth-v2">
+        <div className="auth-wrapper auth-v2 d-flex justify-content-center">
           {isError == true ? <AlertError /> : null}
           {isErrorValidate == true ? <AlertErrorValidate /> : null}
           {!detailForm ? (
@@ -359,16 +364,251 @@ const LoginPage = (props) => {
               </Col>
             </Row>
           ) : (
-            <Card>
-              <Button.Ripple
-                color="primary"
-                block
-                className="mt-2"
-                onClick={() => setDetailForm(!detailForm)}
-              >
-                Back
-              </Button.Ripple>
-            </Card>
+            <div className="min-vh-100 w-100 mx-5">
+              <div className="d-flex align-items-center justify-content-center my-3">
+                <h2>Form Data Diri</h2>
+              </div>
+
+              <Card>
+                <div className="px-2 py-2">
+                  {/* ACTIONS */}
+                  <div className="d-flex justify-content-between w-100 flex-wrap">
+                    <div
+                      className="d-flex flex-wrap"
+                      style={{
+                        gap: 20,
+                        width: "70%",
+                        paddingTop: "1rem",
+                        paddingLeft: "2rem",
+                      }}
+                    >
+                      <Button.Ripple
+                        outline
+                        type="submit"
+                        color="danger"
+                        className="btn-next"
+                        onClick={() => router.back()}
+                      >
+                        <ArrowLeft size={18} />
+                        <span className="ml-50 align-middle d-sm-inline-block d-none">
+                          Back
+                        </span>
+                      </Button.Ripple>
+                      <Button.Ripple
+                        id="saveBtn"
+                        color="primary"
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Spinner size="sm" color="white" />
+                            <span className="ml-50">Submitting...</span>
+                          </>
+                        ) : (
+                          <div
+                            className="d-flex"
+                            style={{ alignItems: "center" }}
+                          >
+                            <Save size={18} />
+                            <div className="ml-1">Save</div>
+                          </div>
+                        )}
+                      </Button.Ripple>
+                    </div>
+                  </div>
+                  <Container>
+                    <Row className="mt-3">
+                      <Col md="6">
+                        <FormGroup tag={Col} md="12">
+                          <Label className="form-label font-weight-bold">
+                            Name
+                          </Label>
+                          <Input
+                            id="name"
+                            type="text"
+                            placeholder="Name"
+                            value={"Daniel Emerald Sumarly"}
+                            onChange={handleChange("name")}
+                          />
+                          {errors.name && (
+                            <div className="text-danger">{errors.name}</div>
+                          )}
+                        </FormGroup>
+                      </Col>
+                      <Col md="6">
+                        <FormGroup tag={Col} md="12">
+                          <Label className="form-label font-weight-bold">
+                            Email
+                          </Label>
+                          <Input
+                            id="email"
+                            type="text"
+                            placeholder="Email"
+                            value={"daniel.sumarly@binus.ac.id"}
+                            onChange={handleChange("email")}
+                          />
+                          {errors.email && (
+                            <div className="text-danger">{errors.email}</div>
+                          )}
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md="6">
+                        <FormGroup tag={Col} md="12">
+                          <Label className="form-label font-weight-bold">
+                            School/College
+                          </Label>
+                          <Input
+                            id="school"
+                            type="text"
+                            placeholder="School/College"
+                            value={"Binus University"}
+                            onChange={handleChange("school")}
+                          />
+                          {errors.school && (
+                            <div className="text-danger">{errors.school}</div>
+                          )}
+                        </FormGroup>
+                      </Col>
+                      <Col md="6">
+                        <FormGroup tag={Col} md="12">
+                          <Label className="form-label font-weight-bold">
+                            Faculty
+                          </Label>
+                          <AsyncSelect
+                            id="companyCode"
+                            name="companyCode"
+                            classNamePrefix="select"
+                            cacheOptions
+                            value={{
+                              label: selectedDepartment.label,
+                              value: selectedDepartment.value,
+                            }}
+                            defaultOptions={DEPARTMENT_DATA}
+                            onChange={(e) => {
+                              setSelectedDepartment(e);
+                            }}
+                            placeholder="Choose..."
+                          />
+                          {errors.faculty && (
+                            <div className="text-danger">{errors.faculty}</div>
+                          )}
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md="6">
+                        <FormGroup tag={Col} md="12">
+                          <Label className="form-label font-weight-bold">
+                            Site
+                          </Label>
+                          <AsyncSelect
+                            id="companyCode"
+                            name="companyCode"
+                            classNamePrefix="select"
+                            cacheOptions
+                            value={{
+                              label: selectedCompany.label,
+                              value: selectedCompany.value,
+                            }}
+                            defaultOptions={SITE_DATA}
+                            onChange={(e) => {
+                              setSelectedDepartment(e);
+                            }}
+                            placeholder="Search..."
+                          />
+                        </FormGroup>
+                      </Col>
+                      <Col md="6">
+                        <FormGroup tag={Col} md="12">
+                          <Label className="form-label font-weight-bold">
+                            Department
+                          </Label>
+                          <AsyncSelect
+                            id="companyCode"
+                            name="companyCode"
+                            classNamePrefix="select"
+                            cacheOptions
+                            value={{
+                              label: selectedDepartment.label,
+                              value: selectedDepartment.value,
+                            }}
+                            defaultOptions={DEPARTMENT_DATA}
+                            onChange={(e) => {
+                              setSelectedDepartment(e);
+                            }}
+                            placeholder="Choose..."
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md="6">
+                        <FormGroup tag={Col} md="12">
+                          <Label className="form-label font-weight-bold">
+                            Mentor
+                          </Label>
+                          <AsyncSelect
+                            // cacheOptions
+                            id="nameSearch"
+                            className="dropdownModal"
+                            isSearchable
+                            loadOptions={loadOptionsName}
+                            components={{ DropdownIndicator }}
+                            getOptionValue={(option) => option.value}
+                            value={selectedMentor?.name}
+                            formatOptionLabel={(data) => (
+                              <UserOptionItem
+                                key={data?.id}
+                                profilePicture={
+                                  data.profilePicturePath ||
+                                  "/images/avatars/avatar-blank.png"
+                                }
+                                // name={`${data?.name} (${data?.email ?? "UPN N/A"})`}
+                                name={`${data?.name} (${data?.userPrincipalName})`}
+                                subtitle={data?.compName}
+                              />
+                            )}
+                            onChange={(e) => {
+                              setFieldValue("name", e.name);
+                              setSelectedName(e);
+                              findUser(e.name);
+                              setRole([]);
+                              setFieldValue("userRoles", []);
+                            }}
+                            placeholder={
+                              selectedMentor?.name || "Search by name or email"
+                            }
+                          />
+                        </FormGroup>
+                      </Col>
+                      <Col md="6">
+                        <Row>
+                          <Col md="6">
+                            <FormGroup tag={Col} md="12">
+                              <FormikDatePicker
+                                label="Internship Start Date"
+                                name="startDate"
+                              />
+                            </FormGroup>
+                          </Col>
+                          <Col md="6">
+                            <FormGroup tag={Col} md="12">
+                              <FormikDatePicker
+                                label="Internship End Date"
+                                name="endDate"
+                              />
+                            </FormGroup>
+                          </Col>
+                        </Row>
+                      </Col>
+                    </Row>
+                  </Container>
+                </div>
+              </Card>
+            </div>
           )}
         </div>
       )}
