@@ -44,7 +44,7 @@ import { reauthenticate } from "redux/actions/auth";
 import { connect, useDispatch } from "react-redux";
 import { getAllRoles, getRolesByUPN } from "redux/actions/master/role";
 import { searchRole, searchUser } from "helpers/master/masterRole";
-import { getAllMasterUser, createMasterUser, getAllMasterUserInternal, } from "redux/actions/master/user";
+import { getAllMasterUser, createMasterUser, getAllMasterUserInternal, } from "redux/actions/master/userInternal";
 import debounce from "lodash/debounce";
 
 const AddMasterUser = (props) => {

@@ -9,11 +9,11 @@ import {
 import { getHeaders } from "helpers/utils";
 import { store } from "redux/store";
 import {
-  CREATE_MASTER_USER,
-  DELETE_MASTER_USER,
-  EDIT_MASTER_USER,
-  GET_ALL_MASTER_USER,
-  GET_MASTER_USER_BY_ID
+  CREATE_MASTER_USER_INTERNAL,
+  DELETE_MASTER_USER_INTERNAL,
+  EDIT_MASTER_USER_INTERNAL,
+  GET_ALL_MASTER_USER_INTERNAL,
+  GET_MASTER_USER_INTERNAL_BY_ID
 } from "redux/types";
 
 export const getAllMasterUserInternal = (param) => async (dispatch) => {
@@ -26,14 +26,14 @@ export const getAllMasterUserInternal = (param) => async (dispatch) => {
       headers: { ...header, ...param },
     });
 
-    dispatch({ type: GET_ALL_MASTER_USER, payload: response.data });
+    dispatch({ type: GET_ALL_MASTER_USER_INTERNAL, payload: response.data });
     return response;
   } catch (error) {
     return error.response;
   }
 };
 
-export const getMasterUserById = (id) => async (dispatch) => {
+export const getMasterUserInternalById = (id) => async (dispatch) => {
   const header = getHeaders(store.getState().authReducers.token);
 
   try {
@@ -43,14 +43,14 @@ export const getMasterUserById = (id) => async (dispatch) => {
       headers: { ...header },
     });
 
-    dispatch({ type: GET_MASTER_USER_BY_ID, payload: response.data });
+    dispatch({ type: GET_MASTER_USER_INTERNAL_BY_ID, payload: response.data });
     return response;
   } catch (error) {
     return error.response;
   }
 };
 
-export const createMasterUser = (data) => async (dispatch) => {
+export const createMasterUserInternal = (data) => async (dispatch) => {
   const header = getHeaders(store.getState().authReducers.token);
 
   try {
@@ -61,14 +61,14 @@ export const createMasterUser = (data) => async (dispatch) => {
       data,
     });
 
-    dispatch({ type: CREATE_MASTER_USER, payload: response.data });
+    dispatch({ type: CREATE_MASTER_USER_INTERNAL, payload: response.data });
     return response;
   } catch (error) {
     return error.response;
   }
 };
 
-export const updateMasterUser = (id, data) => async (dispatch) => {
+export const updateMasterUserInternal = (id, data) => async (dispatch) => {
   const header = getHeaders(store.getState().authReducers.token);
 
   try {
@@ -78,7 +78,7 @@ export const updateMasterUser = (id, data) => async (dispatch) => {
       headers: { ...header },
       data,
     });
-    dispatch({ type: EDIT_MASTER_USER, payload: response.data });
+    dispatch({ type: EDIT_MASTER_USER_INTERNAL, payload: response.data });
 
     return response;
   } catch (error) {
@@ -86,7 +86,7 @@ export const updateMasterUser = (id, data) => async (dispatch) => {
   }
 };
 
-export const deleteMasterUser = (id) => async (dispatch) => {
+export const deleteMasterUserInternal = (id) => async (dispatch) => {
   const header = getHeaders(store.getState().authReducers.token);
 
   try {
@@ -96,7 +96,7 @@ export const deleteMasterUser = (id) => async (dispatch) => {
       headers: header,
     });
 
-    dispatch({ type: DELETE_MASTER_USER, payload: response.data });
+    dispatch({ type: DELETE_MASTER_USER_INTERNAL, payload: response.data });
     return response;
   } catch (error) {
     console.error(error);

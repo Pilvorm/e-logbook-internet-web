@@ -8,6 +8,27 @@ export const HTTP_CODE = {
   CONFLICT: 409,
 };
 
+export const EDUCATION_DATA = [
+  {
+    id: 1,
+    value: 'S1',
+    name: 'S1',
+    label: 'S1'
+  },
+  {
+    id: 2,
+    value: 'D3',
+    name: 'D3',
+    label: 'D3'
+  },
+  {
+    id: 3,
+    value: 'SMA',
+    name: 'SMA',
+    label: 'SMA'
+  }
+]
+
 export const SITE_DATA = [
   {
     id: 1,

@@ -112,7 +112,7 @@ export default function CustomDatePicker({
             style={{ fontSize: "12px" }}
             className="font-weight-bold"
           >
-            {label}
+            {label} {props.isRequired && <span className="text-danger">*</span>}
           </Label>
         )}
         {label && isBold && (
@@ -121,7 +121,7 @@ export default function CustomDatePicker({
             htmlFor={props.name}
             style={{ fontSize: "12px" }}
           >
-            {label}
+            {label} {props.isRequired && <span className="text-danger">*</span>}
           </span>
         )}
         <Flatpickr

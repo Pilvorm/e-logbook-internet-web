@@ -48,7 +48,7 @@ import {
   getAllMasterUser,
   createMasterUser,
   getAllMasterUserInternal,
-} from "redux/actions/master/user";
+} from "redux/actions/master/userInternal";
 import { getAllAllowance } from "redux/actions/master/allowance";
 import debounce from "lodash/debounce";
 

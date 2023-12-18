@@ -1,4 +1,4 @@
-import { SITE_DATA, DEPARTMENT_DATA } from "constant";
+import { EDUCATION_DATA, SITE_DATA, DEPARTMENT_DATA } from "constant";
 import Link from "next/link";
 import Image from "next/image";
 import InputPasswordToggle from "src/@core/components/input-password-toggle";
@@ -22,6 +22,7 @@ import metadata from "appsettings.json";
 import InputUsernameIcon from "src/@core/components/input-username-icon";
 import { useRouter } from "next/router";
 import {
+  confirmAlertNotification,
   errorAlertNotification,
   errorAlertNotificationCode,
   errorAlertNotificationGlobal,
@@ -36,19 +37,25 @@ import { FieldArray, Formik } from "formik";
 import * as yup from "yup";
 import { Search, Save, Plus, Trash, ArrowLeft } from "react-feather";
 import { searchRole, searchUser } from "helpers/master/masterRole";
+import { connect, useDispatch } from "react-redux";
 import debounce from "lodash/debounce";
 import UserOptionItem from "components/UserOptionItem";
 import FormikDatePicker from "components/CustomInputs/CustomDatePicker";
 
 import { getAsyncOptionsSchool } from "helpers/master/masterSchool";
 import { getAsyncOptionsFaculty } from "helpers/master/masterFaculty";
+import { getAsyncOptionsDepartment } from "helpers/master/masterDepartment";
 
 import { getSchoolAsyncSelect } from "redux/actions/master/school";
 import { getFacultyAsyncSelect } from "redux/actions/master/faculty";
+import { getDepartmentAsyncSelect } from "redux/actions/master/department";
+
+import { createMasterIntern } from "redux/actions/master/intern";
+
 import { wrapper } from "redux/store";
 
 const LoginPage = (props) => {
-  const { dataSchool, dataFaculty, csrfToken, query } = props;
+  const { dataSchool, dataFaculty, dataDepartment, csrfToken, query } = props;
   const isMobileWidth = useMobileDetector();
   const router = useRouter();
   const [loginLoading, setLoginLoading] = useState(false);
@@ -56,25 +63,25 @@ const LoginPage = (props) => {
   const [isErrorValidate, setIsErrorValidate] = useState(
     query.isError == "true" || query.invalid == "true" ? true : false
   );
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedSchool, setSelectedSchool] = useState([]);
+  const [selectedFaculty, setSelectedFaculty] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState([]);
+  const [selectedMentor, setSelectedMentor] = useState([]);
   const [emailUser, setEmailUser] = useState("");
   const secret = process.env.NEXT_PUBLIC_API_SECRET_KEY_JWT ?? "";
 
   const [detailForm, setDetailForm] = useState(false);
 
+  const dispatch = useDispatch();
+
   const [selectedCompany, setSelectedCompany] = useState({
     label: "Search...",
     value: "",
   });
-
-  const [selectedDepartment, setSelectedDepartment] = useState({
-    label: "Choose...",
-    value: "",
-  });
-
-  const [selectedMentor, setSelectedMentor] = useState([]);
 
   const getAsyncOptionsName = (inputText) => {
     return searchUser(inputText).then((resp) => {
@@ -108,6 +115,17 @@ const LoginPage = (props) => {
     debounce((inputText, callback) => {
       if (inputText) {
         getAsyncOptionsFaculty(inputText).then((options) => callback(options));
+      }
+    }, 1000),
+    []
+  );
+
+  const loadOptionsDepartment = useCallback(
+    debounce((inputText, callback) => {
+      if (inputText) {
+        getAsyncOptionsDepartment(inputText).then((options) =>
+          callback(options)
+        );
       }
     }, 1000),
     []
@@ -191,9 +209,86 @@ const LoginPage = (props) => {
     }
   };
 
+  const onSubmit = (values, actions) => {
+    const {
+      userPrincipalName,
+      name,
+      education,
+      schoolCode,
+      schoolName,
+      facultyCode,
+      faculty,
+      deptCode,
+      dept,
+      password,
+      status,
+      joinDate,
+      endDate,
+      mentorUpn,
+      mentorName,
+      companyCode,
+      companyName,
+      internshipPeriodMonth,
+      userRole,
+    } = values;
+
+    let bodyData = {
+      userPrincipalName,
+      name,
+      education,
+      schoolCode,
+      schoolName,
+      facultyCode,
+      faculty,
+      deptCode,
+      dept,
+      password,
+      status,
+      joinDate,
+      endDate,
+      mentorUpn,
+      mentorName,
+      companyCode,
+      companyName,
+      internshipPeriodMonth,
+      userRole,
+    };
+
+    console.log("BODY DATA");
+    console.log(bodyData);
+
+    // confirmAlertNotification(
+    //   "Complete Registration",
+    //   "Confirm information details?",
+    //   () => {
+    //     actions.setSubmitting(true);
+    //     dispatch(createMasterIntern(bodyData)).then((res) => {
+    //       if (res.status >= 200 && res.status <= 300) {
+    //         actions.setSubmitting(false);
+    //         successAlertNotification("Success", "Registered Succesfully");
+    //         router.push("/auth");
+    //       } else {
+    //         actions.setSubmitting(false);
+    //         console.error(res);
+    //         errorAlertNotification(
+    //           "Error",
+    //           res?.data?.message ? res?.data?.message : "Failed to save data"
+    //         );
+    //       }
+    //     });
+    //   },
+    //   () => {
+    //     actions.setSubmitting(false);
+    //   }
+    // );
+  };
+
   const validationSchema = yup
     .object({
       name: yup.string().required("Name is required"),
+      education: yup.string().required("Required"),
+      schoolName: yup.string().required("School/College is required"),
+      companyName: yup.string().required("Company is required")
       // userPrincipalName: yup.string().required("User principal name is required"),
       // jabatan: yup.string().required("Job title is required"),
       // email: yup.string().required("Email is required"),
@@ -214,8 +309,33 @@ const LoginPage = (props) => {
   return (
     <Formik
       enableReinitialize
+      initialValues={{
+        userPrincipalName: username,
+        name: "",
+        education: "",
+        schoolCode: selectedSchool.schoolCode,
+        schoolName: selectedSchool.schoolName,
+        facultyCode: selectedFaculty.facultyCode,
+        faculty: selectedFaculty.facultyCode,
+        faculty: selectedFaculty.facultyName,
+        deptCode: selectedDepartment.departmenetCode,
+        dept: selectedDepartment.departmentName,
+        password: password,
+        status: "UNCONFIRMED",
+        joinDate: new Date(),
+        endDate: new Date(),
+        mentorUpn: selectedMentor.userPrincipalName,
+        mentorName: selectedMentor.name,
+        companyCode: 1,
+        companyName: "PT XYZ Tbk.",
+        internshipPeriodMonth: 12,
+        userRole: {
+          roleCode: "INTERN",
+          roleName: "INTERN",
+        },
+      }}
       validationSchema={validationSchema}
-      // onSubmit={onSubmit}
+      onSubmit={onSubmit}
     >
       {({
         values,
@@ -390,8 +510,8 @@ const LoginPage = (props) => {
             </Row>
           ) : (
             <div className="min-vh-100 w-100 mx-5">
-              <div className="d-flex align-items-center justify-content-center my-3">
-                <h2>Form Data Diri</h2>
+              <div className="d-flex align-items-center justify-content-center mt-5 mb-3">
+                <h2>Intern Registration</h2>
               </div>
 
               <Card>
@@ -412,7 +532,7 @@ const LoginPage = (props) => {
                         type="submit"
                         color="danger"
                         className="btn-next"
-                        onClick={() => router.back()}
+                        onClick={() => setDetailForm(!detailForm)}
                       >
                         <ArrowLeft size={18} />
                         <span className="ml-50 align-middle d-sm-inline-block d-none">
@@ -447,14 +567,15 @@ const LoginPage = (props) => {
                       <Col md="6">
                         <FormGroup tag={Col} md="12">
                           <Label className="form-label font-weight-bold">
-                            Name
+                            Name <span className="text-danger">*</span>
                           </Label>
                           <Input
                             id="name"
                             type="text"
-                            placeholder="Name"
-                            value={"Daniel Emerald Sumarly"}
+                            placeholder="Full Name"
+                            value={values.name}
                             onChange={handleChange("name")}
+                            isRequired
                           />
                           {errors.name && (
                             <div className="text-danger">{errors.name}</div>
@@ -464,14 +585,15 @@ const LoginPage = (props) => {
                       <Col md="6">
                         <FormGroup tag={Col} md="12">
                           <Label className="form-label font-weight-bold">
-                            Email
+                            Email <span className="text-danger">*</span>
                           </Label>
                           <Input
-                            id="email"
+                            id="userPrincipalName"
                             type="text"
                             placeholder="Email"
-                            value={"daniel.sumarly@binus.ac.id"}
-                            onChange={handleChange("email")}
+                            value={values.userPrincipalName}
+                            onChange={handleChange("userPrincipalName")}
+                            disabled
                           />
                           {errors.email && (
                             <div className="text-danger">{errors.email}</div>
@@ -481,28 +603,60 @@ const LoginPage = (props) => {
                     </Row>
                     <Row>
                       <Col md="6">
-                        <FormGroup tag={Col} md="12">
-                          <Label className="form-label font-weight-bold">
-                            School/College
-                          </Label>
-                          <AsyncSelect
-                            id="companyCode"
-                            name="companyCode"
-                            classNamePrefix="select"
-                            cacheOptions
-                            defaultOptions={dataSchool}
-                            loadOptions={loadOptionsSchool}
-                            placeholder="Choose..."
-                          />
-                          {errors.school && (
-                            <div className="text-danger">{errors.school}</div>
-                          )}
-                        </FormGroup>
+                        <Row>
+                          <Col md="3">
+                            <FormGroup tag={Col} md="12">
+                              <Label className="form-label font-weight-bold">
+                                Education <span className="text-danger">*</span>
+                              </Label>
+                              <AsyncSelect
+                                id="schoolName"
+                                name="schoolName"
+                                classNamePrefix="select"
+                                cacheOptions
+                                defaultOptions={EDUCATION_DATA}
+                                placeholder="Select"
+                                onChange={(e) => {
+                                  setFieldValue("education", e.value)
+                                }}
+                              />
+                              {errors.education && (
+                                <div className="text-danger">
+                                  {errors.education}
+                                </div>
+                              )}
+                            </FormGroup>
+                          </Col>
+                          <Col md="9">
+                            <FormGroup tag={Col} md="12">
+                              <Label className="form-label font-weight-bold">
+                                School/College <span className="text-danger">*</span>
+                              </Label>
+                              <AsyncSelect
+                                id="schoolName"
+                                name="schoolName"
+                                classNamePrefix="select"
+                                cacheOptions
+                                defaultOptions={dataSchool}
+                                loadOptions={loadOptionsSchool}
+                                placeholder="Search"
+                                onChange={(e) => {
+                                  setSelectedSchool(e);
+                                }}
+                              />
+                              {errors.schoolName && (
+                                <div className="text-danger">
+                                  {errors.schoolName}
+                                </div>
+                              )}
+                            </FormGroup>
+                          </Col>
+                        </Row>
                       </Col>
                       <Col md="6">
                         <FormGroup tag={Col} md="12">
                           <Label className="form-label font-weight-bold">
-                            Faculty
+                            Faculty <span className="text-danger">*</span>
                           </Label>
                           <AsyncSelect
                             id="companyCode"
@@ -511,7 +665,8 @@ const LoginPage = (props) => {
                             cacheOptions
                             defaultOptions={dataFaculty}
                             loadOptions={loadOptionsFaculty}
-                            placeholder="Choose..."
+                            placeholder="Search"
+                            onChange={(e) => setSelectedFaculty(e)}
                           />
                           {errors.faculty && (
                             <div className="text-danger">{errors.faculty}</div>
@@ -523,7 +678,7 @@ const LoginPage = (props) => {
                       <Col md="6">
                         <FormGroup tag={Col} md="12">
                           <Label className="form-label font-weight-bold">
-                            Site
+                            Company <span className="text-danger">*</span>
                           </Label>
                           <AsyncSelect
                             id="companyCode"
@@ -538,29 +693,24 @@ const LoginPage = (props) => {
                             onChange={(e) => {
                               setSelectedDepartment(e);
                             }}
-                            placeholder="Search..."
+                            placeholder="Search"
                           />
                         </FormGroup>
                       </Col>
                       <Col md="6">
                         <FormGroup tag={Col} md="12">
                           <Label className="form-label font-weight-bold">
-                            Department
+                            Department <span className="text-danger">*</span>
                           </Label>
                           <AsyncSelect
                             id="companyCode"
                             name="companyCode"
                             classNamePrefix="select"
                             cacheOptions
-                            value={{
-                              label: selectedDepartment.label,
-                              value: selectedDepartment.value,
-                            }}
-                            defaultOptions={DEPARTMENT_DATA}
-                            onChange={(e) => {
-                              setSelectedDepartment(e);
-                            }}
-                            placeholder="Choose..."
+                            defaultOptions={dataDepartment}
+                            loadOptions={loadOptionsDepartment}
+                            placeholder="Search"
+                            onChange={(e) => setSelectedDepartment(e)}
                           />
                         </FormGroup>
                       </Col>
@@ -569,7 +719,7 @@ const LoginPage = (props) => {
                       <Col md="6">
                         <FormGroup tag={Col} md="12">
                           <Label className="form-label font-weight-bold">
-                            Mentor
+                            Mentor <span className="text-danger">*</span>
                           </Label>
                           <AsyncSelect
                             // cacheOptions
@@ -592,13 +742,7 @@ const LoginPage = (props) => {
                                 subtitle={data?.compName}
                               />
                             )}
-                            onChange={(e) => {
-                              setFieldValue("name", e.name);
-                              setSelectedName(e);
-                              findUser(e.name);
-                              setRole([]);
-                              setFieldValue("userRoles", []);
-                            }}
+                            onChange={(e) => setSelectedMentor(e)}
                             placeholder={
                               selectedMentor?.name || "Search by name or email"
                             }
@@ -611,7 +755,8 @@ const LoginPage = (props) => {
                             <FormGroup tag={Col} md="12">
                               <FormikDatePicker
                                 label="Internship Start Date"
-                                name="startDate"
+                                name="joinDate"
+                                isRequired
                               />
                             </FormGroup>
                           </Col>
@@ -620,6 +765,7 @@ const LoginPage = (props) => {
                               <FormikDatePicker
                                 label="Internship End Date"
                                 name="endDate"
+                                isRequired
                               />
                             </FormGroup>
                           </Col>
@@ -629,6 +775,12 @@ const LoginPage = (props) => {
                   </Container>
                 </div>
               </Card>
+              <div className="auth-footer-btn d-flex flex-column justify-content-center align-items-center my-3">
+                <p className="m-0">E-Logbook Version {metadata.appVersion}</p>
+                <p className="m-0">
+                  &#169;{new Date().getFullYear()} - PT. XYZ Tbk.
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -641,19 +793,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
     const { query, req, res } = ctx;
 
-    const sessionData = await getSession(ctx);
-
-    if (sessionData) {
-      return {
-        redirect: {
-          destination: "/",
-          permanent: false,
-        },
-      };
-    }
-
     const dataSchool = await store.dispatch(getSchoolAsyncSelect());
     const dataFaculty = await store.dispatch(getFacultyAsyncSelect());
+    const dataDepartment = await store.dispatch(getDepartmentAsyncSelect());
 
     return {
       props: {
@@ -662,6 +804,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
         query: query,
         dataSchool,
         dataFaculty,
+        dataDepartment,
       },
     };
   }

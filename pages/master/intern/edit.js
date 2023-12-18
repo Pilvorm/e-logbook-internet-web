@@ -43,7 +43,7 @@ import { reauthenticate } from "redux/actions/auth";
 import { connect, useDispatch } from "react-redux";
 import { getAllRoles, getRolesByUPN } from "redux/actions/master/role";
 import { searchRole, searchUser } from "helpers/master/masterRole";
-import { getAllMasterUser, createMasterUser } from "redux/actions/master/user";
+import { getAllMasterUser, createMasterUser } from "redux/actions/master/userInternal";
 import { searchCompany, getAsyncOptionsSBU } from "helpers/sbu";
 import FormikDatePicker from "components/CustomInputs/CustomDatePicker";
 import debounce from "lodash/debounce";

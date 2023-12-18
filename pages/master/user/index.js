@@ -35,7 +35,7 @@ import {
   deleteMasterUser,
   getSbuAsyncSelect,
   getAllMasterUserInternal,
-} from "redux/actions/master/user";
+} from "redux/actions/master/userInternal";
 import { wrapper } from "redux/store";
 
 import {

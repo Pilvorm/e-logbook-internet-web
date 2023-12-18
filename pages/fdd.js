@@ -48,7 +48,7 @@ import {
   getAllMasterUser,
   createMasterUser,
   getAllMasterUserInternal,
-} from "redux/actions/master/user";
+} from "redux/actions/master/userInternal";
 import debounce from "lodash/debounce";
 
 const FormDataDiri = (props) => {

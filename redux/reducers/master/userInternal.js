@@ -1,8 +1,8 @@
 import {
-  CREATE_MASTER_USER,
-  DELETE_MASTER_USER,
-  EDIT_MASTER_USER,
-  GET_ALL_MASTER_USER,
+  CREATE_MASTER_USER_INTERNAL,
+  DELETE_MASTER_USER_INTERNAL,
+  EDIT_MASTER_USER_INTERNAL,
+  GET_ALL_MASTER_USER_INTERNAL,
   GET_ALL_ROLES,
 } from "redux/types";
 
@@ -13,9 +13,9 @@ const initialState = {
   pageSize: 0,
 };
 
-const masterUserReducers = (state = initialState, { type, payload }) => {
+const masterUserInternalReducers = (state = initialState, { type, payload }) => {
   switch (type) {
-    case GET_ALL_MASTER_USER:
+    case GET_ALL_MASTER_USER_INTERNAL:
       return {
         ...state,
         data: payload.data,
@@ -24,15 +24,15 @@ const masterUserReducers = (state = initialState, { type, payload }) => {
         totalData: payload.totalData,
         pageSize: payload.pageSize,
       };
-    case DELETE_MASTER_USER:
+    case DELETE_MASTER_USER_INTERNAL:
       return payload;
-    case CREATE_MASTER_USER:
+    case CREATE_MASTER_USER_INTERNAL:
       return payload;
-    case EDIT_MASTER_USER:
+    case EDIT_MASTER_USER_INTERNAL:
       return payload;
     default:
       return state;
   }
 };
 
-export default masterUserReducers;
+export default masterUserInternalReducers;
