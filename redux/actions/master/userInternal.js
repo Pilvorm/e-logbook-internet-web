@@ -13,7 +13,7 @@ import {
   DELETE_MASTER_USER_INTERNAL,
   EDIT_MASTER_USER_INTERNAL,
   GET_ALL_MASTER_USER_INTERNAL,
-  GET_MASTER_USER_INTERNAL_BY_ID
+  GET_MASTER_USER_INTERNAL_BY_ID,
 } from "redux/types";
 
 export const getAllMasterUserInternal = (param) => async (dispatch) => {
@@ -104,42 +104,27 @@ export const deleteMasterUserInternal = (id) => async (dispatch) => {
   }
 };
 
-export const getAllSBU = (name) => async (dispatch) => {
-  const header = getHeaders(store.getState().authReducers.token);
-  try {
-    const response = await axios({
-      url: `${API_GLOBAL_SBU_URL}/api/BU/BuAndOrgGroupPharma`,
-      headers: header,
-      method: "GET",
+export const searchMentor = (searchQuery) => {
+  const header = getHeaders();
+
+  return fetch(`${API_MASTER}/UserInternal/GetUserInternal`, {
+    headers: {
+      ...header,
+      "X-PAGINATION": true,
+      "X-PAGE": 1,
+      "X-PAGESIZE": 10,
+      "X-ORDERBY": "createdDate desc",
+      "X-SEARCH": `*${searchQuery || ""}*`,
+      "X-FILTER": `userRoles=mentor`,
+    },
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      return data;
+    })
+    .catch((err) => {
+      console.log(err);
     });
-
-    return response.data;
-  } catch (error) {
-    return error.response;
-  }
-};
-
-export const getSbuAsyncSelect = (name) => async (dispatch) => {
-  const header = getHeaders(store.getState().authReducers.token);
-
-  try {
-    const response = await axios({
-      url: `${API_GLOBAL_SBU_URL}/api/BU/BuAndOrgGroupPharma`,
-      headers: header,
-      method: "GET",
-    });
-
-    // Map the value inside the try block
-    const updatedData = response.data.map((item) => ({
-      ...item,
-      label: item.name,
-      value: item.name,
-    }));
-
-    return updatedData;
-
-    // return response.data;
-  } catch (error) {
-    return error.response;
-  }
 };

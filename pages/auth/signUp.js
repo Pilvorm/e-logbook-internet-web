@@ -51,11 +51,24 @@ import { getFacultyAsyncSelect } from "redux/actions/master/faculty";
 import { getDepartmentAsyncSelect } from "redux/actions/master/department";
 
 import { createMasterIntern } from "redux/actions/master/intern";
+import {
+  getAllMasterUserInternal,
+  deleteMasterUserInternal,
+  getSbuAsyncSelect,
+  searchMentor,
+} from "redux/actions/master/userInternal";
 
 import { wrapper } from "redux/store";
 
 const LoginPage = (props) => {
-  const { dataSchool, dataFaculty, dataDepartment, csrfToken, query } = props;
+  const {
+    dataSchool,
+    dataFaculty,
+    dataDepartment,
+    dataMentor,
+    csrfToken,
+    query,
+  } = props;
   const isMobileWidth = useMobileDetector();
   const router = useRouter();
   const [loginLoading, setLoginLoading] = useState(false);
@@ -83,9 +96,15 @@ const LoginPage = (props) => {
     value: "",
   });
 
-  const getAsyncOptionsName = (inputText) => {
-    return searchUser(inputText).then((resp) => {
-      return resp.data.items.map((singleData) => ({
+  const mentorList = dataMentor.data.map((mentor) => ({
+    ...mentor,
+    label: mentor.name,
+    value: mentor.userPrincipalName,
+  }));
+
+  const getAsyncOptionsMentor = (inputText) => {
+    return searchMentor(inputText).then((resp) => {
+      return resp.data.map((singleData) => ({
         ...singleData,
         value: singleData.nik,
         label: singleData.name,
@@ -93,10 +112,10 @@ const LoginPage = (props) => {
     });
   };
 
-  const loadOptionsName = useCallback(
+  const loadOptionsMentor = useCallback(
     debounce((inputText, callback) => {
       if (inputText) {
-        getAsyncOptionsName(inputText).then((options) => callback(options));
+        getAsyncOptionsMentor(inputText).then((options) => callback(options));
       }
     }, 1000),
     []
@@ -288,7 +307,7 @@ const LoginPage = (props) => {
       name: yup.string().required("Name is required"),
       education: yup.string().required("Required"),
       schoolName: yup.string().required("School/College is required"),
-      companyName: yup.string().required("Company is required")
+      companyName: yup.string().required("Company is required"),
       // userPrincipalName: yup.string().required("User principal name is required"),
       // jabatan: yup.string().required("Job title is required"),
       // email: yup.string().required("Email is required"),
@@ -316,12 +335,11 @@ const LoginPage = (props) => {
         schoolCode: selectedSchool.schoolCode,
         schoolName: selectedSchool.schoolName,
         facultyCode: selectedFaculty.facultyCode,
-        faculty: selectedFaculty.facultyCode,
         faculty: selectedFaculty.facultyName,
         deptCode: selectedDepartment.departmenetCode,
         dept: selectedDepartment.departmentName,
         password: password,
-        status: "UNCONFIRMED",
+        status: "Unconfirmed",
         joinDate: new Date(),
         endDate: new Date(),
         mentorUpn: selectedMentor.userPrincipalName,
@@ -511,7 +529,16 @@ const LoginPage = (props) => {
           ) : (
             <div className="min-vh-100 w-100 mx-5">
               <div className="d-flex align-items-center justify-content-center mt-5 mb-3">
-                <h2>Intern Registration</h2>
+                <Link href="/">
+                  <a className="d-flex justify-content-center">
+                    <Image
+                      src="/images/logo/kalbe-logo.png"
+                      width={113}
+                      height={51}
+                    />
+                  </a>
+                </Link>
+                <h2 className="ml-2 pl-2 border-left-dark">Intern Registration</h2>
               </div>
 
               <Card>
@@ -617,7 +644,7 @@ const LoginPage = (props) => {
                                 defaultOptions={EDUCATION_DATA}
                                 placeholder="Select"
                                 onChange={(e) => {
-                                  setFieldValue("education", e.value)
+                                  setFieldValue("education", e.value);
                                 }}
                               />
                               {errors.education && (
@@ -630,7 +657,8 @@ const LoginPage = (props) => {
                           <Col md="9">
                             <FormGroup tag={Col} md="12">
                               <Label className="form-label font-weight-bold">
-                                School/College <span className="text-danger">*</span>
+                                School/College{" "}
+                                <span className="text-danger">*</span>
                               </Label>
                               <AsyncSelect
                                 id="schoolName"
@@ -724,12 +752,14 @@ const LoginPage = (props) => {
                           <AsyncSelect
                             // cacheOptions
                             id="nameSearch"
-                            className="dropdownModal"
+                            // className="dropdownModal"
+                            classNamePrefix="select"
                             isSearchable
-                            loadOptions={loadOptionsName}
+                            loadOptions={loadOptionsMentor}
+                            defaultOptions={mentorList}
                             components={{ DropdownIndicator }}
                             getOptionValue={(option) => option.value}
-                            value={selectedMentor?.name}
+                            value={values.mentorName}
                             formatOptionLabel={(data) => (
                               <UserOptionItem
                                 key={data?.id}
@@ -742,10 +772,16 @@ const LoginPage = (props) => {
                                 subtitle={data?.compName}
                               />
                             )}
-                            onChange={(e) => setSelectedMentor(e)}
+                            onChange={(e) => {
+                              setFieldValue("mentorName", e.name);
+                              setSelectedMentor(e);
+                            }}
                             placeholder={
-                              selectedMentor?.name || "Search by name or email"
+                              values.mentorName ||
+                              selectedMentor?.name ||
+                              "Search by name or email"
                             }
+                            menuPlacement="top"
                           />
                         </FormGroup>
                       </Col>
@@ -775,7 +811,7 @@ const LoginPage = (props) => {
                   </Container>
                 </div>
               </Card>
-              <div className="auth-footer-btn d-flex flex-column justify-content-center align-items-center my-3">
+              <div className="auth-footer-btn d-flex flex-column justify-content-center align-items-center">
                 <p className="m-0">E-Logbook Version {metadata.appVersion}</p>
                 <p className="m-0">
                   &#169;{new Date().getFullYear()} - PT. XYZ Tbk.
@@ -793,6 +829,17 @@ export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
     const { query, req, res } = ctx;
 
+    await store.dispatch(
+      getAllMasterUserInternal({
+        "X-PAGINATION": true,
+        "X-PAGE": 1,
+        "X-PAGESIZE": 10,
+        "X-ORDERBY": "createdDate desc",
+        "X-FILTER": `userRoles=mentor`,
+      })
+    );
+
+    const dataMentor = store.getState().masterUserInternalReducers;
     const dataSchool = await store.dispatch(getSchoolAsyncSelect());
     const dataFaculty = await store.dispatch(getFacultyAsyncSelect());
     const dataDepartment = await store.dispatch(getDepartmentAsyncSelect());
@@ -805,6 +852,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
         dataSchool,
         dataFaculty,
         dataDepartment,
+        dataMentor,
       },
     };
   }
