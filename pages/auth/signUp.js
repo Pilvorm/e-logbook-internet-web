@@ -1,4 +1,4 @@
-import { EDUCATION_DATA, SITE_DATA, DEPARTMENT_DATA } from "constant";
+import { EDUCATION_DATA, COMPANY_DATA, DEPARTMENT_DATA } from "constant";
 import Link from "next/link";
 import Image from "next/image";
 import InputPasswordToggle from "src/@core/components/input-password-toggle";
@@ -87,7 +87,7 @@ const LoginPage = (props) => {
   const [emailUser, setEmailUser] = useState("");
   const secret = process.env.NEXT_PUBLIC_API_SECRET_KEY_JWT ?? "";
 
-  const [detailForm, setDetailForm] = useState(false);
+  const [detailForm, setDetailForm] = useState(true);
 
   const dispatch = useDispatch();
 
@@ -165,67 +165,29 @@ const LoginPage = (props) => {
 
   const handleContinue = async (e) => {
     e.preventDefault();
-    setLoginLoading(true);
-    const loginData = {
-      name: name,
-      email: email,
-    };
-    if (name === null || name === "") {
+    if (username === null || username === "") {
       setLoginLoading(false);
-      return errorAlertNotification(
-        "Error",
-        "Mohon mengisi Name terlebih dahulu"
-      );
-    }
-    if (email === null || email === "") {
-      setLoginLoading(false);
-      return errorAlertNotification(
-        "Error",
-        "Mohon mengisi Email terlebih dahulu"
-      );
+      return errorAlertNotification("Error", "Username must be filled");
     }
     const regex =
       /^([A-Za-z0-9_\-\.])+\@(?!(?:[A-Za-z0-9_\-\.]+\.)?com\.com)([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
-    if (!regex.test(email)) {
+    if (!regex.test(username)) {
       setLoginLoading(false);
-      return errorAlertNotification(
-        "Error",
-        "Format alamat email yang anda input salah"
-      );
+      return errorAlertNotification("Error", "Wrong username format.");
     }
-    try {
-      return onLoginGuest(loginData)
-        .then((data) => {
-          if (data.status === 400) {
-            setLoginLoading(false);
-            let a = "";
-            if (data.statusText.Name) {
-              setErrorMessage(data.statusText.Name[0] ?? "");
-              a = data.statusText.Name[0];
-            } else {
-              setErrorMessage(data.statusText.Email[0] ?? "");
-              a = data.statusText.Email[0];
-            }
-            setError(true);
-            return errorAlertNotification("Error", a);
-          }
-          if (data.securityCode) {
-            const emailEncode = sign(email, secret);
-            const nameEncode = sign(name, secret);
-            localStorage.setItem("name", nameEncode);
-            localStorage.setItem("email", emailEncode);
-            if (typeof window !== "undefined") {
-            }
-            router.push({
-              pathname: router.pathname,
-              query: `validate=${true}`,
-            });
-          }
-        })
-        .catch((err) => console.log(err));
-    } catch (error) {
-      throw new Error("There was an error on user authentication");
+    if (password === null || password === "") {
+      setLoginLoading(false);
+      return errorAlertNotification("Error", "Password must be filled");
     }
+    if (
+      confirmPassword === null ||
+      confirmPassword === "" ||
+      confirmPassword !== password
+    ) {
+      setLoginLoading(false);
+      return errorAlertNotification("Error", "Password does not match");
+    }
+    setDetailForm(!detailForm)
   };
 
   const onSubmit = (values, actions) => {
@@ -358,6 +320,7 @@ const LoginPage = (props) => {
       {({
         values,
         errors,
+        touched,
         setFieldValue,
         handleSubmit,
         handleChange,
@@ -383,9 +346,9 @@ const LoginPage = (props) => {
                     <Link href="/">
                       <a className="d-flex justify-content-center">
                         <Image
-                          src="/images/logo/kalbe-logo.png"
-                          width={113}
-                          height={51}
+                          src="/images/logo/xyz-logo.png"
+                          width={117}
+                          height={49}
                         />
                       </a>
                     </Link>
@@ -411,30 +374,30 @@ const LoginPage = (props) => {
                             setLoginLoading(false);
                             return errorAlertNotification(
                               "Error",
-                              "Username atau password tidak boleh kosong!"
+                              "Username or password must be filled!"
                             );
                           }
-                          const response = await signIn("credentials", {
-                            callbackUrl: query.url
-                              ? `/home?url=${query.url}`
-                              : "/home",
-                            redirect: true,
-                            username,
-                            password,
-                            applicationCode: "HSSE",
-                            getProfile: true,
-                            isMobileWidth: isMobileWidth,
-                          });
-                          if (response.error) {
-                            errorAlertNotification(
-                              "Error",
-                              <div
-                                dangerouslySetInnerHTML={{
-                                  __html: response.error,
-                                }}
-                              ></div>
-                            );
-                          }
+                          // const response = await signIn("credentials", {
+                          //   callbackUrl: query.url
+                          //     ? `/home?url=${query.url}`
+                          //     : "/home",
+                          //   redirect: true,
+                          //   username,
+                          //   password,
+                          //   applicationCode: "HSSE",
+                          //   getProfile: true,
+                          //   isMobileWidth: isMobileWidth,
+                          // });
+                          // if (response.error) {
+                          //   errorAlertNotification(
+                          //     "Error",
+                          //     <div
+                          //       dangerouslySetInnerHTML={{
+                          //         __html: response.error,
+                          //       }}
+                          //     ></div>
+                          //   );
+                          // }
                         } catch (err) {
                           // console.log(err, 'di 335');
                         }
@@ -486,19 +449,19 @@ const LoginPage = (props) => {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                           />
-                          {confirmPassword !== password &&
+                          {/* {confirmPassword !== password &&
                             confirmPassword.length > 0 && (
                               <div className="text-danger">
                                 Password does not match
                               </div>
-                            )}
+                            )} */}
                           <Button.Ripple
                             color="primary"
                             block
                             className="mt-2"
-                            onClick={() => setDetailForm(!detailForm)}
+                            onClick={(e) => handleContinue(e)}
                           >
-                            Continue - ADD REGEX EMAIL
+                            Continue
                           </Button.Ripple>
                           <div className="d-flex justify-content-center mt-1">
                             <span>
@@ -520,7 +483,7 @@ const LoginPage = (props) => {
                       E-Logbook Version {metadata.appVersion}
                     </p>
                     <p className="m-0">
-                      &#169;{new Date().getFullYear()} - PT. XYZ Tbk.
+                      &#169;{new Date().getFullYear()} - PT XYZ Tbk.
                     </p>
                   </div>
                 </Col>
@@ -532,13 +495,15 @@ const LoginPage = (props) => {
                 <Link href="/">
                   <a className="d-flex justify-content-center">
                     <Image
-                      src="/images/logo/kalbe-logo.png"
-                      width={113}
-                      height={51}
+                      src="/images/logo/xyz-logo.png"
+                      width={117}
+                      height={49}
                     />
                   </a>
                 </Link>
-                <h2 className="ml-2 pl-2 border-left-dark">Intern Registration</h2>
+                <h2 className="ml-2 pl-2 border-left-dark">
+                  Intern Registration
+                </h2>
               </div>
 
               <Card>
@@ -647,7 +612,7 @@ const LoginPage = (props) => {
                                   setFieldValue("education", e.value);
                                 }}
                               />
-                              {errors.education && (
+                              {errors.education && touched.eduaction && (
                                 <div className="text-danger">
                                   {errors.education}
                                 </div>
@@ -672,7 +637,7 @@ const LoginPage = (props) => {
                                   setSelectedSchool(e);
                                 }}
                               />
-                              {errors.schoolName && (
+                              {errors.schoolName && touched.schoolName && (
                                 <div className="text-danger">
                                   {errors.schoolName}
                                 </div>
@@ -687,8 +652,8 @@ const LoginPage = (props) => {
                             Faculty <span className="text-danger">*</span>
                           </Label>
                           <AsyncSelect
-                            id="companyCode"
-                            name="companyCode"
+                            id="faculty"
+                            name="faculty"
                             classNamePrefix="select"
                             cacheOptions
                             defaultOptions={dataFaculty}
@@ -709,15 +674,15 @@ const LoginPage = (props) => {
                             Company <span className="text-danger">*</span>
                           </Label>
                           <AsyncSelect
-                            id="companyCode"
-                            name="companyCode"
+                            id="companyName"
+                            name="companyName"
                             classNamePrefix="select"
                             cacheOptions
                             value={{
                               label: selectedCompany.label,
                               value: selectedCompany.value,
                             }}
-                            defaultOptions={SITE_DATA}
+                            defaultOptions={COMPANY_DATA}
                             onChange={(e) => {
                               setSelectedDepartment(e);
                             }}
@@ -814,7 +779,7 @@ const LoginPage = (props) => {
               <div className="auth-footer-btn d-flex flex-column justify-content-center align-items-center">
                 <p className="m-0">E-Logbook Version {metadata.appVersion}</p>
                 <p className="m-0">
-                  &#169;{new Date().getFullYear()} - PT. XYZ Tbk.
+                  &#169;{new Date().getFullYear()} - PT XYZ Tbk.
                 </p>
               </div>
             </div>

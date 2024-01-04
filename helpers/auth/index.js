@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AUTH_URL, USER_ROLE_URL, AUTHORIZATION_URL, MODULE_URL } from "constant";
+import { API_MASTER, AUTH_URL, USER_ROLE_URL, AUTHORIZATION_URL, MODULE_URL } from "constant";
 import { getHeaders } from "helpers/utils";
 
 const headerAuthentication = new Headers();
@@ -20,37 +20,11 @@ export const submitLogin = (data) => {
 export const onLogin = async (data) => {
   try {
     const response = await axios({
-      url: `${AUTH_URL}/api/UserAuthentication/authenticate/nonGuest`,
+      // url: `${AUTH_URL}/api/UserAuthentication/authenticate/nonGuest`,
+      url: `${API_MASTER}/UserAuth/AuthenticateInternal`,
       method: "POST",
       headers: getHeaders(),
       data,
-    });
-    return response.data;
-  } catch (error) {
-    return { status: error.response.status, statusText: error.response.data };
-  };
-};
-
-export const onLoginGuest = async (data) => {
-  try {
-    const response = await axios({
-      url: `${AUTH_URL}/api/HsseOnlineAuthentication/loginGuest`,
-      method: "POST",
-      headers: getHeaders(),
-      data,
-    });
-    return response.data;
-  } catch (error) {
-    return { status: error.response.status, statusText: error.response.data.errors };
-  };
-};
-
-export const onSubmitSecurityCode = async (code) => {
-  try {
-    const response = await axios({
-      url: `${AUTH_URL}/api/HsseOnlineAuthentication/authenticate/${code}/securityCode`,
-      method: "POST",
-      headers: getHeaders(),
     });
     return response.data;
   } catch (error) {
@@ -59,10 +33,10 @@ export const onSubmitSecurityCode = async (code) => {
 };
 
 export const getRoleUser = async (email) => {
-  console.log(`${USER_ROLE_URL}/api/UserRoles/GetRolesByUPN?UPN=${email}&ApplicationCode=hsseonline`);
+  console.log(`${USER_ROLE_URL}/api/UserRoles/GetRolesByUPN?UPN=${email}&ApplicationCode=elogbook`);
   try {
     const response = await axios({
-      url: `${USER_ROLE_URL}/api/UserRoles/GetRolesByUPN?UPN=${email}&ApplicationCode=hsseonline`,
+      url: `${USER_ROLE_URL}/api/UserRoles/GetRolesByUPN?UPN=${email}&ApplicationCode=elogbook`,
       method: "GET",
       headers: getHeaders(),
     });
@@ -89,19 +63,6 @@ export const getModuleMobile = async () => {
   try {
     const response = await axios({
       url: `${MODULE_URL}/api/Module/Mobile/portalga`,
-      method: "GET",
-      headers: getHeaders(),
-    });
-    return response.data;
-  } catch (error) {
-    return { status: error.response.status, statusText: error.response.data };
-  };
-};
-
-export const getAuthUser = async (roleCode) => {
-  try {
-    const response = await axios({
-      url: `${AUTHORIZATION_URL}/api/Authorization/GetModuleAccess?roleCode=${roleCode}&appCode=hsseonline`,
       method: "GET",
       headers: getHeaders(),
     });

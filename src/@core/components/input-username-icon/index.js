@@ -61,7 +61,7 @@ const InputUsernameIcon = (props) => {
         )}
         <Input
           type={"text"}
-          placeholder={"ex: john.doe@kalbe.co.id"}
+          placeholder={"ex: john.doe@xyz.co.id"}
           id="username"
           name="username"
           className={classnames({

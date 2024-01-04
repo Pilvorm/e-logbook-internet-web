@@ -16,83 +16,45 @@ const options = {
   providers: [
     CredentialsProvider({
       async authorize(credentials) {
-        if (credentials.code) {
-          try {
-            return onSubmitSecurityCode(credentials.code)
-              .then(async (data) => {
-                if (data.status === 400) {
-                  throw new Error("Expired");
-                }
-                if (data.status === 404) {
-                  throw new Error("Expired");
-                  // throw new Error("Invalid")
-                }
-                const token = data.accessToken;
-                const decoded = jwt_decode(token);
+        console.log(credentials);
+        const loginData = {
+          username: credentials.username,
+          password: credentials.password,
+          applicationCode: "ELOGBOOK",
+          getProfile: true,
+        };
 
-                const userData = {
-                  token,
-                  ...decoded,
-                  token: data.accessToken,
-                  name: data.name,
-                  // menuUser,
-                  // modules: navigationData,
-                  guest: true,
-                };
+        try {
+          return onLogin(loginData)
+            .then(async (data) => {
+              console.log(data, "<<<<<<< data");
+              if (data.status === 400) {
+                throw new Error(data.statusText);
+              }
+              const token = data.accessToken;
+              const decoded = jwt_decode(token);
 
-                return userData;
-              })
-              .catch((err) => {
-                if (err.message === "Invalid") {
-                  throw new Error("tokenInvalid"); // Throw a custom error
-                } else {
-                  throw new Error("tokenExpired"); // Throw a custom error
-                }
-              });
-          } catch (e) {
-            throw new Error("There was an error on user authentication");
-          }
-        } else {
-          console.log(credentials);
-          const loginData = {
-            username: credentials.username,
-            password: credentials.password,
-            applicationCode: "HSSEONLINE",
-            getProfile: true,
-          };
+              const userData = {
+                ...decoded,
+                token,
+                guest: false,
+              };
 
-          try {
-            return onLogin(loginData)
-              .then(async (data) => {
-                console.log(data, "<<<<<<< data");
-                if (data.status === 400) {
-                  throw new Error(data.statusText);
-                }
-                const token = data.accessToken;
-                const decoded = jwt_decode(token);
+              console.log(userData, "<<<<<<<<<");
 
-                const userData = {
-                  ...decoded,
-                  token,
-                  guest: false,
-                };
-
-                console.log(userData, "<<<<<<<<<");
-
-                return userData;
-              })
-              .catch((err) => {
-                if (err.Name) {
-                  throw new Error(err.Name[0]);
-                } else if (err.Email) {
-                  throw new Error(err.Email[0]);
-                }
-                throw new Error("errorLogin"); // Throw a custom error
-                // throw new Error(err)
-              });
-          } catch (e) {
-            throw new Error("There was an error on user authentication");
-          }
+              return userData;
+            })
+            .catch((err) => {
+              if (err.Name) {
+                throw new Error(err.Name[0]);
+              } else if (err.Email) {
+                throw new Error(err.Email[0]);
+              }
+              throw new Error("errorLogin"); // Throw a custom error
+              // throw new Error(err)
+            });
+        } catch (e) {
+          throw new Error("There was an error on user authentication");
         }
       },
     }),
