@@ -21,7 +21,7 @@ export const onLogin = async (data) => {
   try {
     const response = await axios({
       // url: `${AUTH_URL}/api/UserAuthentication/authenticate/nonGuest`,
-      url: `${API_MASTER}/UserAuth/AuthenticateInternal`,
+      url: `${API_MASTER}/UserAuth/AuthenticateExternal`,
       method: "POST",
       headers: getHeaders(),
       data,

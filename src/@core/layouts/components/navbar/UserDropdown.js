@@ -95,7 +95,7 @@ const UserDropdown = ({ newUser }) => {
               : ""}
           </span>
           <span className="user-status">
-            {session?.user.CompName}
+            INTERN — {session?.user.CompanyName}
             {/* {session?.user.iss} */}
           </span>
         </div>

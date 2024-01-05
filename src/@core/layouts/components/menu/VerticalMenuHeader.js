@@ -3,8 +3,8 @@ import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-import iconLogo from "/public/images/logo/logo-kalbe-icon.webp";
-import iconTypo from "/public/images/logo/logo-kalbe-typography.webp";
+import iconLogo from "/public/images/logo/logo-xyz-icon.png";
+import iconTypo from "/public/images/logo/logo-xyz-typography.png";
 import { X } from "react-feather";
 
 const VerticalMenuHeader = (props) => {
@@ -22,7 +22,7 @@ const VerticalMenuHeader = (props) => {
     if (!menuVisibility && menuCollapsed) setGroupOpen([]);
   }, [menuVisibility, menuCollapsed]);
 
-  const sizingRatio = 0.1;
+  const sizingRatio = 0.22;
   const isMobile = typeof window !== "undefined" && window.innerWidth < 1200;
 
   return (
@@ -34,23 +34,26 @@ const VerticalMenuHeader = (props) => {
             <span className="brand-logo">
               <Image
                 src={iconLogo}
-                width={250 * sizingRatio}
-                height={541 * sizingRatio}
+                width={196 * sizingRatio}
+                height={196 * sizingRatio}
                 alt="logo"
               />
             </span>
-            <h2 className="brand-text text-black text-bold mb-0 pl-0">
+            <h2
+              className="brand-text text-black text-bold mb-0 pl-0"
+              style={{ marginLeft: "15px" }}
+            >
               <Image
                 src={iconTypo}
-                width={950 * sizingRatio}
-                height={541 * sizingRatio}
+                width={256 * sizingRatio}
+                height={196 * sizingRatio}
                 alt="logo"
                 placeholder="blur"
               />
             </h2>
             {menuVisibility && isMobile ? (
               <div className="ml-auto mt-1">
-                <X onClick={() => setMenuVisibility((state) => !state)}/>
+                <X onClick={() => setMenuVisibility((state) => !state)} />
               </div>
             ) : null}
           </a>

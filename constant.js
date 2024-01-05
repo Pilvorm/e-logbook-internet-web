@@ -8,6 +8,27 @@ export const HTTP_CODE = {
   CONFLICT: 409,
 };
 
+export const EDUCATION_DATA = [
+  {
+    id: 1,
+    value: "S1",
+    name: "S1",
+    label: "S1",
+  },
+  {
+    id: 2,
+    value: "D3",
+    name: "D3",
+    label: "D3",
+  },
+  {
+    id: 3,
+    value: "SMA",
+    name: "SMA",
+    label: "SMA",
+  },
+];
+
 export const COMPANY_DATA = [
   {
     id: 4,
@@ -20,6 +41,9 @@ export const COMPANY_DATA = [
     value: "01",
     name: "PT XYZ Tbk.",
     label: "PT XYZ Tbk.",
+    companyCode: "01",
+    companyName: "PT XYZ Tbk."
+
   },
   // {
   //   id: 2,

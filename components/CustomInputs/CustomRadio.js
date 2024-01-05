@@ -12,7 +12,7 @@ const MyCustomRadio = ({
   return (
     <div className="col-12 m-0 p-0 row">
       <label
-        className="w-100 font-weight-bold"
+        className={`w-100 ${props.isBold && "font-weight-bold"}`}
         style={{ fontSize: "12px" }}
         htmlFor={name}
       >
@@ -30,10 +30,10 @@ const MyCustomRadio = ({
                     <div
                       className={
                         isRow
-                          ? `d-flex flex align-items-center mb-0 mt-0`
+                          ? `d-flex flex align-items-center mb-0`
                           : `col-12 d-flex flex align-items-center mb-0 mt-0`
                       }
-                      style={isRow && {marginRight: 20}}
+                      style={isRow && {marginRight: 20, marginTop:10}}
                     >
                       <input
                         type="radio"

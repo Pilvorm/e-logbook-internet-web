@@ -79,22 +79,20 @@ const LoginPage = (props) => {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedEducation, setSelectedEducation] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState([]);
   const [selectedFaculty, setSelectedFaculty] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState([]);
   const [emailUser, setEmailUser] = useState("");
   const secret = process.env.NEXT_PUBLIC_API_SECRET_KEY_JWT ?? "";
 
-  const [detailForm, setDetailForm] = useState(true);
+  const [detailForm, setDetailForm] = useState(false);
 
   const dispatch = useDispatch();
-
-  const [selectedCompany, setSelectedCompany] = useState({
-    label: "Search...",
-    value: "",
-  });
 
   const mentorList = dataMentor.data.map((mentor) => ({
     ...mentor,
@@ -187,7 +185,7 @@ const LoginPage = (props) => {
       setLoginLoading(false);
       return errorAlertNotification("Error", "Password does not match");
     }
-    setDetailForm(!detailForm)
+    setDetailForm(!detailForm);
   };
 
   const onSubmit = (values, actions) => {
@@ -238,30 +236,30 @@ const LoginPage = (props) => {
     console.log("BODY DATA");
     console.log(bodyData);
 
-    // confirmAlertNotification(
-    //   "Complete Registration",
-    //   "Confirm information details?",
-    //   () => {
-    //     actions.setSubmitting(true);
-    //     dispatch(createMasterIntern(bodyData)).then((res) => {
-    //       if (res.status >= 200 && res.status <= 300) {
-    //         actions.setSubmitting(false);
-    //         successAlertNotification("Success", "Registered Succesfully");
-    //         router.push("/auth");
-    //       } else {
-    //         actions.setSubmitting(false);
-    //         console.error(res);
-    //         errorAlertNotification(
-    //           "Error",
-    //           res?.data?.message ? res?.data?.message : "Failed to save data"
-    //         );
-    //       }
-    //     });
-    //   },
-    //   () => {
-    //     actions.setSubmitting(false);
-    //   }
-    // );
+    confirmAlertNotification(
+      "Complete Registration",
+      "Confirm information details?",
+      () => {
+        actions.setSubmitting(true);
+        dispatch(createMasterIntern(bodyData)).then((res) => {
+          if (res.status >= 200 && res.status <= 300) {
+            actions.setSubmitting(false);
+            successAlertNotification("Success", "Registered Succesfully");
+            router.push("/auth");
+          } else {
+            actions.setSubmitting(false);
+            console.error(res);
+            errorAlertNotification(
+              "Error",
+              res?.data?.message ? res?.data?.message : "Failed to save data"
+            );
+          }
+        });
+      },
+      () => {
+        actions.setSubmitting(false);
+      }
+    );
   };
 
   const validationSchema = yup
@@ -269,11 +267,14 @@ const LoginPage = (props) => {
       name: yup.string().required("Name is required"),
       education: yup.string().required("Required"),
       schoolName: yup.string().required("School/College is required"),
+      faculty: yup.string().required("Faculty is required"),
       companyName: yup.string().required("Company is required"),
-      // userPrincipalName: yup.string().required("User principal name is required"),
-      // jabatan: yup.string().required("Job title is required"),
-      // email: yup.string().required("Email is required"),
-      // companyName: yup.string().required("Company name is required"),
+      dept: yup.string().required("Department is required"),
+      mentorName: yup.string().required("Mentor is required"),
+      joinDate: yup.date(),
+      endDate: yup
+        .date()
+        .min(yup.ref("joinDate"), "End date can't be before join date"),
     })
     .required();
 
@@ -292,13 +293,13 @@ const LoginPage = (props) => {
       enableReinitialize
       initialValues={{
         userPrincipalName: username,
-        name: "",
-        education: "",
+        name: fullName,
+        education: selectedEducation.value,
         schoolCode: selectedSchool.schoolCode,
         schoolName: selectedSchool.schoolName,
         facultyCode: selectedFaculty.facultyCode,
         faculty: selectedFaculty.facultyName,
-        deptCode: selectedDepartment.departmenetCode,
+        deptCode: selectedDepartment.departmentCode,
         dept: selectedDepartment.departmentName,
         password: password,
         status: "Unconfirmed",
@@ -306,8 +307,8 @@ const LoginPage = (props) => {
         endDate: new Date(),
         mentorUpn: selectedMentor.userPrincipalName,
         mentorName: selectedMentor.name,
-        companyCode: 1,
-        companyName: "PT XYZ Tbk.",
+        companyCode: selectedCompany.companyCode,
+        companyName: selectedCompany.companyName,
         internshipPeriodMonth: 12,
         userRole: {
           roleCode: "INTERN",
@@ -360,49 +361,49 @@ const LoginPage = (props) => {
                     </CardTitle>
                     <Form
                       className="auth-login-form mt-2"
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-                        setIsError(false);
-                        setLoginLoading(true);
-                        try {
-                          if (
-                            username === null ||
-                            username === "" ||
-                            password === null ||
-                            password === ""
-                          ) {
-                            setLoginLoading(false);
-                            return errorAlertNotification(
-                              "Error",
-                              "Username or password must be filled!"
-                            );
-                          }
-                          // const response = await signIn("credentials", {
-                          //   callbackUrl: query.url
-                          //     ? `/home?url=${query.url}`
-                          //     : "/home",
-                          //   redirect: true,
-                          //   username,
-                          //   password,
-                          //   applicationCode: "HSSE",
-                          //   getProfile: true,
-                          //   isMobileWidth: isMobileWidth,
-                          // });
-                          // if (response.error) {
-                          //   errorAlertNotification(
-                          //     "Error",
-                          //     <div
-                          //       dangerouslySetInnerHTML={{
-                          //         __html: response.error,
-                          //       }}
-                          //     ></div>
-                          //   );
-                          // }
-                        } catch (err) {
-                          // console.log(err, 'di 335');
-                        }
-                        setLoginLoading(false);
-                      }}
+                      // onSubmit={async (e) => {
+                      //   e.preventDefault();
+                      //   setIsError(false);
+                      //   setLoginLoading(true);
+                      //   try {
+                      //     if (
+                      //       username === null ||
+                      //       username === "" ||
+                      //       password === null ||
+                      //       password === ""
+                      //     ) {
+                      //       setLoginLoading(false);
+                      //       return errorAlertNotification(
+                      //         "Error",
+                      //         "Username or password must be filled!"
+                      //       );
+                      //     }
+                      //     const response = await signIn("credentials", {
+                      //       callbackUrl: query.url
+                      //         ? `/home?url=${query.url}`
+                      //         : "/home",
+                      //       redirect: true,
+                      //       username,
+                      //       password,
+                      //       applicationCode: "HSSE",
+                      //       getProfile: true,
+                      //       isMobileWidth: isMobileWidth,
+                      //     });
+                      //     if (response.error) {
+                      //       errorAlertNotification(
+                      //         "Error",
+                      //         <div
+                      //           dangerouslySetInnerHTML={{
+                      //             __html: response.error,
+                      //           }}
+                      //         ></div>
+                      //       );
+                      //     }
+                      //   } catch (err) {
+                      //     console.log(err, 'di 335');
+                      //   }
+                      //   setLoginLoading(false);
+                      // }}
                     >
                       <input
                         name="csrfToken"
@@ -449,12 +450,6 @@ const LoginPage = (props) => {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                           />
-                          {/* {confirmPassword !== password &&
-                            confirmPassword.length > 0 && (
-                              <div className="text-danger">
-                                Password does not match
-                              </div>
-                            )} */}
                           <Button.Ripple
                             color="primary"
                             block
@@ -548,7 +543,7 @@ const LoginPage = (props) => {
                             style={{ alignItems: "center" }}
                           >
                             <Save size={18} />
-                            <div className="ml-1">Save</div>
+                            <div className="ml-1">Submit</div>
                           </div>
                         )}
                       </Button.Ripple>
@@ -566,7 +561,7 @@ const LoginPage = (props) => {
                             type="text"
                             placeholder="Full Name"
                             value={values.name}
-                            onChange={handleChange("name")}
+                            onChange={(e) => setFullName(e.target.value)}
                             isRequired
                           />
                           {errors.name && (
@@ -584,7 +579,6 @@ const LoginPage = (props) => {
                             type="text"
                             placeholder="Email"
                             value={values.userPrincipalName}
-                            onChange={handleChange("userPrincipalName")}
                             disabled
                           />
                           {errors.email && (
@@ -609,10 +603,10 @@ const LoginPage = (props) => {
                                 defaultOptions={EDUCATION_DATA}
                                 placeholder="Select"
                                 onChange={(e) => {
-                                  setFieldValue("education", e.value);
+                                  setSelectedEducation(e);
                                 }}
                               />
-                              {errors.education && touched.eduaction && (
+                              {errors.education && touched.education && (
                                 <div className="text-danger">
                                   {errors.education}
                                 </div>
@@ -632,7 +626,7 @@ const LoginPage = (props) => {
                                 cacheOptions
                                 defaultOptions={dataSchool}
                                 loadOptions={loadOptionsSchool}
-                                placeholder="Search"
+                                placeholder="Search..."
                                 onChange={(e) => {
                                   setSelectedSchool(e);
                                 }}
@@ -658,10 +652,10 @@ const LoginPage = (props) => {
                             cacheOptions
                             defaultOptions={dataFaculty}
                             loadOptions={loadOptionsFaculty}
-                            placeholder="Search"
+                            placeholder="Search..."
                             onChange={(e) => setSelectedFaculty(e)}
                           />
-                          {errors.faculty && (
+                          {errors.faculty && touched.faculty && (
                             <div className="text-danger">{errors.faculty}</div>
                           )}
                         </FormGroup>
@@ -678,16 +672,17 @@ const LoginPage = (props) => {
                             name="companyName"
                             classNamePrefix="select"
                             cacheOptions
-                            value={{
-                              label: selectedCompany.label,
-                              value: selectedCompany.value,
-                            }}
                             defaultOptions={COMPANY_DATA}
                             onChange={(e) => {
-                              setSelectedDepartment(e);
+                              setSelectedCompany(e);
                             }}
-                            placeholder="Search"
+                            placeholder="Search..."
                           />
+                          {errors.companyName && touched.companyName && (
+                            <div className="text-danger">
+                              {errors.companyName}
+                            </div>
+                          )}
                         </FormGroup>
                       </Col>
                       <Col md="6">
@@ -696,15 +691,18 @@ const LoginPage = (props) => {
                             Department <span className="text-danger">*</span>
                           </Label>
                           <AsyncSelect
-                            id="companyCode"
-                            name="companyCode"
+                            id="departmentName"
+                            name="departmentName"
                             classNamePrefix="select"
                             cacheOptions
                             defaultOptions={dataDepartment}
                             loadOptions={loadOptionsDepartment}
-                            placeholder="Search"
+                            placeholder="Search..."
                             onChange={(e) => setSelectedDepartment(e)}
                           />
+                          {errors.dept && touched.dept && (
+                            <div className="text-danger">{errors.dept}</div>
+                          )}
                         </FormGroup>
                       </Col>
                     </Row>
@@ -748,6 +746,11 @@ const LoginPage = (props) => {
                             }
                             menuPlacement="top"
                           />
+                          {errors.mentorName && touched.mentorName && (
+                            <div className="text-danger">
+                              {errors.mentorName}
+                            </div>
+                          )}
                         </FormGroup>
                       </Col>
                       <Col md="6">
@@ -768,6 +771,11 @@ const LoginPage = (props) => {
                                 name="endDate"
                                 isRequired
                               />
+                              {errors.endDate && (
+                                <div className="text-danger">
+                                  {errors.endDate}
+                                </div>
+                              )}
                             </FormGroup>
                           </Col>
                         </Row>
