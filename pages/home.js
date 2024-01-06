@@ -25,7 +25,7 @@ import {
 } from "helpers/auth";
 import { useSelector } from "react-redux";
 
-const Home = ({ userRoles, query, roles }) => {
+const Home = ({ userRoles, query, roles, sessionData }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const isMobileWidth = useMobileDetector();
@@ -106,7 +106,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     try {
       if (sessionData) {
         if (sessionData.user.guest) {
-          temp.push("HSSE-USR");
+          temp.push("INTERN");
         } else {
           const response = await getRoleUser(
             sessionData.user.UserPrincipalName.replace("@", "%40")
@@ -114,7 +114,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
           console.log("step 2", response);
           if (response.data != false) {
             response.data.map(async (item) => {
-              if (item.applicationCode === "HSSEONLINE") {
+              if (item.applicationCode === "ELOGBOOK") {
                 return temp.push(item.roleCode); // multi roles
               }
             });
@@ -135,6 +135,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
         userRoles: sessionData,
         query: ctx.query,
         roles: temp,
+        sessionData,
       },
     };
   }

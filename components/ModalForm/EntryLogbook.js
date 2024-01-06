@@ -104,7 +104,7 @@ const EntryLogbook = ({ visible, toggle, data, ...props }) => {
   //   };
 
   return (
-    <Modal isOpen={visible} toggle={toggle}>
+    <Modal isOpen={visible} toggle={toggle} size="lg">
       <ModalHeader className="text-secondary bg-light" toggle={toggle}>
         Entry Logbook
       </ModalHeader>
@@ -142,7 +142,7 @@ const EntryLogbook = ({ visible, toggle, data, ...props }) => {
                     disabled
                   />
                 </FormGroup>
-                <FormGroup>
+                <FormGroup className="my-2">
                   <CustomRadio
                     label="WFH/WFO"
                     name="workType"
@@ -169,7 +169,7 @@ const EntryLogbook = ({ visible, toggle, data, ...props }) => {
                     placeholder=""
                     customInlineStyle={{
                       resize: "none",
-                      height: "114px",
+                      height: "150px",
                     }}
                   />
                 </FormGroup>
@@ -185,10 +185,10 @@ const EntryLogbook = ({ visible, toggle, data, ...props }) => {
                 {isSubmitting ? (
                   <>
                     <Spinner size="sm" color="white" />
-                    <span className="ml-50">Saving...</span>
+                    <span className="ml-50">Submitting...</span>
                   </>
                 ) : (
-                  "Save"
+                  "Submit"
                 )}
               </Button>
             </ModalFooter>

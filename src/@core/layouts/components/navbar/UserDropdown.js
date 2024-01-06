@@ -87,7 +87,7 @@ const UserDropdown = ({ newUser }) => {
         onClick={(e) => e.preventDefault()}
       >
         <div className="user-nav d-sm-flex d-none">
-          <span className="user-name font-weight-bold">
+          <span className="user-name font-weight-bold text-uppercase">
             {session?.user.Name
               ? session.user.Name
               : session.user.name
@@ -95,7 +95,12 @@ const UserDropdown = ({ newUser }) => {
               : ""}
           </span>
           <span className="user-status">
-            INTERN — {session?.user.CompanyName}
+            INTERN —{" "}
+            {session?.user.CompName
+              ? session.user.CompName
+              : session.user.CompanyName
+              ? session.user.CompanyName
+              : ""}
             {/* {session?.user.iss} */}
           </span>
         </div>

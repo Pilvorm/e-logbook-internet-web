@@ -54,16 +54,19 @@ import EditAllowance from "components/ModalForm/EditAllowance";
 import EntryLogbook from "components/ModalForm/EntryLogbook";
 
 const CreateTableRow = ({ dispatch, data, index }) => {
-  const { data: session, status } = useSession();
-
   const [editPopup, setEditPopup] = useState(false);
   const toggleEditPopup = () => setEditPopup(!editPopup);
+
+  const currentDate = new Date();
   const isWeekend = moment(data).day() == 6 || moment(data).day() == 0;
+  const isFutureDate = moment(data).toDate() > currentDate;
 
   return (
-    <tr>
+    <tr key={index}>
       <td>{index + 1}.</td>
-      <td>{data.format("DD/MM/YY")}</td>
+      <td style={{ color: isWeekend && "#DAD8DF" }}>
+        {data.format("ddd, DD MMM YYYY")}
+      </td>
       <td
         className="text-left"
         style={{ width: "40%", color: isWeekend && "#DAD8DF" }}
@@ -73,7 +76,7 @@ const CreateTableRow = ({ dispatch, data, index }) => {
       <td>{isWeekend ? "" : "WFH"}</td>
       <td style={{ color: "#46A583" }}>{isWeekend ? "" : "Approved by ..."}</td>
       <td>
-        {isWeekend ? (
+        {isWeekend || isFutureDate ? (
           ""
         ) : (
           <Button.Ripple
@@ -90,8 +93,8 @@ const CreateTableRow = ({ dispatch, data, index }) => {
             <EntryLogbook
               visible={editPopup}
               toggle={toggleEditPopup}
-              date={data.format("DD/MM/YY")}
-            //   data={data}
+              date={data.format("ddd, DD MMM YYYY")}
+              //   data={data}
             />
           </Button.Ripple>
         )}
@@ -101,17 +104,15 @@ const CreateTableRow = ({ dispatch, data, index }) => {
 };
 
 const InternshipAttendance = (props) => {
-  const { token, sessionData, query, dataFilter } = props;
+  const { query, dataFilter } = props;
   const dispatch = useDispatch();
   const router = useRouter();
-
-  console.log("SESSION");
-  console.log(sessionData);
 
   const currentDate = new Date();
   const startDate = moment("2023-02-20T12:00:00Z");
   const endDate = moment("2024-02-16T12:00:00Z");
 
+  // Set Period Function
   const setPeriod = (start, end) => {
     const period = [];
     for (
@@ -131,8 +132,9 @@ const InternshipAttendance = (props) => {
     query?.month ?? moment(currentDate).format("MMMM YYYY")
   );
 
+  // Handle Chosen Month Days
   const setDays = (month) => {
-    var daysInMonth = moment(month).daysInMonth();
+    var daysInMonth = moment(month, "MMMM YYYY").daysInMonth();
     var arrDays = [];
 
     while (daysInMonth) {
@@ -143,23 +145,31 @@ const InternshipAttendance = (props) => {
     return arrDays;
   };
 
-  const [monthDays, setMonthDays] = useState(setDays(monthQuery));
+  const setDays2 = (month) => {
+    var daysInMonth = moment(month, "MMMM YYYY").daysInMonth();
+    var arrDays = [];
 
-  useEffect(() => {
-    dispatch(reauthenticate(token));
-  }, [dispatch]);
+    while (daysInMonth) {
+      var current = moment(`${month} ${daysInMonth}`, "MMMM YYYY DD");
+      arrDays.unshift(current);
+      daysInMonth--;
+    }
+    return arrDays;
+  };
+
+  const [monthDays, setMonthDays] = useState(setDays2(monthQuery));
+
+  // useEffect(() => {
+  //   dispatch(reauthenticate(token));
+  // }, [dispatch]);
 
   const handleMonthChange = (value) => {
-    setMonthQuery(value);
-
     router.push({
       pathname: router.pathname,
-      // query: {
-      //   ...dataFilter,
-      //   pageSize: value,
-      //   pageNumber: 1,
-      //   search: searchQuery,
-      // },
+      query: {
+        ...dataFilter,
+        month: value,
+      },
     });
   };
 
@@ -181,21 +191,32 @@ const InternshipAttendance = (props) => {
       <BreadCrumbs
         breadCrumbParent="Internship"
         breadCrumbParent2="Logbook"
-        breadCrumbActive={`${sessionData.user.Name}`}
+        // breadCrumbActive={`${sessionData.user.Name}`}
+        breadCrumbActive={`Daniel Emerald Sumarly`}
       />
       <div className="d-flex align-items-center my-3">
-        <h2>Intern Logbook</h2>
+        <h2>Intern Logbook - Balikin Session</h2>
       </div>
 
       <Card className="p-2 d-flex">
         <div className="flex-col align-items-center ">
           <div className="">
-            <InternDetailCard
+            {/* <InternDetailCard
               nama={`${sessionData.user.Name}`}
               department={`${sessionData.user.Dept}`}
               school={`${sessionData.user.SchoolName}`}
               faculty={`${sessionData.user.Faculty}`}
               month={`${monthQuery}`}
+              status="Complete"
+              workingDays="14 WFH / 8 WFO"
+              pay="Rp 1.920.000"
+            /> */}
+            <InternDetailCard
+              nama={`Daniel Emerald Sumarly`}
+              department={`Corporate IT`}
+              school={`Bina Nusantara University`}
+              faculty={`Computer Science`}
+              month={`January`}
               status="Complete"
               workingDays="14 WFH / 8 WFO"
               pay="Rp 1.920.000"
@@ -300,27 +321,27 @@ InternshipAttendance.getLayout = function getLayout(page) {
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
     const { query } = ctx;
-    const sessionData = await getSession(ctx);
+    // const sessionData = await getSession(ctx);
 
-    if (!sessionData) {
-      return {
-        redirect: {
-          destination: `/auth?url=${ctx.resolvedUrl}`,
-          permanent: false,
-        },
-      };
-    }
+    // if (!sessionData) {
+    //   return {
+    //     redirect: {
+    //       destination: `/auth?url=${ctx.resolvedUrl}`,
+    //       permanent: false,
+    //     },
+    //   };
+    // }
 
-    const token = sessionData.user.token;
+    // const token = sessionData.user.token;
 
-    store.dispatch(reauthenticate(token));
+    // store.dispatch(reauthenticate(token));
 
     return {
       props: {
         query,
-        token,
+        // token,
         dataFilter: query,
-        sessionData,
+        // sessionData,
       },
     };
   }

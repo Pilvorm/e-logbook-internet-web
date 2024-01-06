@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL, API_USER_URL, USER_ROLE_URL } from "constant";
+import { API_MASTER, API_URL, API_USER_URL, USER_ROLE_URL } from "constant";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import UnauthorizedAccess from "pages/UnauthorizedAccess";
@@ -18,7 +18,8 @@ const fetchUserRolesFunction = async (dataSession) => {
   if (flagCount <= 1) {
     try {
       fetchUserRoles = await axios({
-        url: `${USER_ROLE_URL}/api/UserRoles/GetUserMultipleRolesByUPNAppCode?UPN=${sessionData.user.UserPrincipalName}&ApplicationCode=HSSEONLINE&CompanyCode=`,
+        // url: `${USER_ROLE_URL}/api/UserRoles/GetUserMultipleRolesByUPNAppCode?UPN=${sessionData.user.UserPrincipalName}&ApplicationCode=HSSEONLINE&CompanyCode=`,
+        url: `${API_MASTER}/Role/GetRoleByUpn?Upn=${sessionData.user.UserPrincipalName}`,
         method: "get",
         headers: getHeaders(sessionData.user.token),
       });
