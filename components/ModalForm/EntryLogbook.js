@@ -2,6 +2,7 @@ import {
   errorAlertNotification,
   successAlertNotification,
 } from "components/notification";
+import { useEffect, useState } from "react";
 import { HTTP_CODE } from "constant";
 import { Formik } from "formik";
 import { useRouter } from "next/router";
@@ -18,6 +19,7 @@ import {
   Spinner,
 } from "reactstrap";
 import { editAllowance } from "redux/actions/master/allowance";
+import { createLogbookData } from "redux/actions/logbook";
 import * as yup from "yup";
 import FormikInput from "components/CustomInputs/CustomInput";
 import CustomRadio from "components/CustomInputs/CustomRadio";
@@ -29,79 +31,71 @@ const validationSchema = yup
   })
   .required();
 
-const EntryLogbook = ({ visible, toggle, data, ...props }) => {
+const EntryLogbook = ({ visible, toggle, data, sessionData, logbookData, monthQuery, ...props }) => {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  //   const onSubmit = (values, actions) => {
-  //     const { educationCode, educationName, wfhAllowanceFee, wfoAllowanceFee } =
-  //       values;
+  const [dayOff, setDayOff] = useState(false);
 
-  //     dispatch(
-  //       editAllowance(data.id, {
-  //         ...data,
-  //         id: data.id,
-  //         allowances: [
-  //           {
-  //             ...data.allowances[0],
-  //             id: data.allowances[0].id,
-  //             workType: "WFH",
-  //             allowanceFee: wfhAllowanceFee,
-  //           },
-  //           {
-  //             ...data.allowances[1],
-  //             id: data.allowances[1].id,
-  //             workType: "WFO",
-  //             allowanceFee: wfoAllowanceFee,
-  //           },
-  //         ],
-  //       })
-  //     ).then((res) => {
-  //       if (res.status === HTTP_CODE.OK) {
-  //         actions.setSubmitting(false);
-  //         successAlertNotification("Success", "Data Updated Successfully");
-  //         router.push({
-  //           pathname: router.pathname,
-  //         });
-  //       } else if (res.status === 409) {
-  //         actions.setSubmitting(false);
-  //         errorAlertNotification(
-  //           "Duplicate",
-  //           "Duplicate Data, Please check your data."
-  //         );
-  //       } else {
-  //         actions.setSubmitting(false);
-  //         console.error(res);
-  //         let errorMessages = [];
+  const onSubmit = (values, actions) => {
+    const { date, workType, activity } = values;
 
-  //         try {
-  //           errorMessages = Object.entries(res.data.errors).flatMap(
-  //             ([field, messages]) => {
-  //               return messages.map((message) => ({ field, message }));
-  //             }
-  //           );
-  //         } catch (error) {
-  //           // Handle the error appropriately
-  //           errorMessages = [
-  //             {
-  //               field: "Error",
-  //               message: "Something went wrong, Please try again later.",
-  //             },
-  //           ];
-  //         }
+    dispatch(
+      createLogbookData({
+        name: sessionData.user.name,
+        upn: sessionData.user.UserPrincipalName,
+        departmentName: sessionData.user.dept,
+        schoolCode: sessionData.user.schoolCode,
+        schoolName: sessionData.user.schoolName,
+        facultyCode: sessionData.user.facultyCode,
+        facultyName: sessionData.user.faculty,
+        month: monthQuery,
+        logbookdays:[
+          date,
+          workType,
+          activity
+        ]
+      })
+    ).then((res) => {
+      if (res.status === HTTP_CODE.OK) {
+        actions.setSubmitting(false);
+        successAlertNotification("Success", "Data Updated Successfully");
+        router.push({
+          pathname: router.pathname,
+        });
+      } else {
+        actions.setSubmitting(false);
+        console.error(res);
+        let errorMessages = [];
 
-  //         const title = "Error";
-  //         const message =
-  //           errorMessages.length > 0
-  //             ? errorMessages
-  //                 .map(({ field, message }) => `${field}: ${message}`)
-  //                 .join("\n")
-  //             : "";
+        try {
+          errorMessages = Object.entries(res.data.errors).flatMap(
+            ([field, messages]) => {
+              return messages.map((message) => ({ field, message }));
+            }
+          );
+        } catch (error) {
+          // Handle the error appropriately
+          errorMessages = [
+            {
+              field: "Error",
+              message: "Something went wrong, Please try again later.",
+            },
+          ];
+        }
 
-  //         errorAlertNotification(title, message);
-  //       }
-  //     });
-  //   };
+        const title = "Error";
+        const message =
+          errorMessages.length > 0
+            ? errorMessages
+                .map(({ field, message }) => `${field}: ${message}`)
+                .join("\n")
+            : "";
+
+        errorAlertNotification(title, message);
+      }
+    });
+  };
 
   return (
     <Modal isOpen={visible} toggle={toggle} size="lg">
@@ -109,14 +103,11 @@ const EntryLogbook = ({ visible, toggle, data, ...props }) => {
         Entry Logbook
       </ModalHeader>
       <Formik
-        initialValues={
-          {
-            //   educationCode: data?.educationCode ?? "",
-            //   educationName: data?.educationName ?? "",
-            //   wfhAllowanceFee: data?.allowances[0].allowanceFee ?? "",
-            //   wfoAllowanceFee: data?.allowances[1].allowanceFee ?? "",
-          }
-        }
+        initialValues={{
+          date: props.date ?? "",
+          workType: "",
+          activity: "",
+        }}
         validationSchema={validationSchema}
         // onSubmit={onSubmit}
       >
@@ -126,6 +117,7 @@ const EntryLogbook = ({ visible, toggle, data, ...props }) => {
           setFieldValue,
           handleSubmit,
           handleChange,
+          resetForm,
           isSubmitting,
         }) => (
           <>
@@ -135,10 +127,11 @@ const EntryLogbook = ({ visible, toggle, data, ...props }) => {
                   <Label className="form-label">Date</Label>
                   <Input
                     id="education"
+                    name="date"
                     type="text"
                     placeholder="Date"
-                    defaultValue={props.date}
-                    onChange={handleChange("education")}
+                    defaultValue={values.date}
+                    onChange={handleChange("date")}
                     disabled
                   />
                 </FormGroup>
@@ -159,23 +152,38 @@ const EntryLogbook = ({ visible, toggle, data, ...props }) => {
                       },
                     ]}
                     isRow={true}
+                    disabledForm={dayOff}
                   />
                 </FormGroup>
                 <FormGroup>
                   <Label className="form-label">Activity</Label>
                   <FormikInput
                     type="textarea"
-                    name="aktivitasKorban"
-                    placeholder=""
+                    name="activity"
+                    placeholder={dayOff ? "OFF" : ""}
                     customInlineStyle={{
                       resize: "none",
                       height: "150px",
                     }}
+                    value={values.activity}
+                    disabled={dayOff}
                   />
                 </FormGroup>
               </form>
             </ModalBody>
             <ModalFooter>
+              <Button
+                outline={!dayOff}
+                color="danger"
+                id="submitBtn"
+                name="submitBtn"
+                onClick={() => {
+                  resetForm();
+                  setDayOff(!dayOff);
+                }}
+              >
+                DAY OFF
+              </Button>
               <Button
                 color="success"
                 id="submitBtn"

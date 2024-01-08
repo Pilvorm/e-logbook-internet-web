@@ -42,6 +42,7 @@ const MyCustomRadio = ({
                         style={{ height: 20, width: 20}}
                         value={option.value}
                         checked={field.value === option.value}
+                        disabled={props.disabledForm}
                       />
                       <span className="d-flex w-full" style={{ marginLeft: 10 }} htmlFor={option.key}>
                         {option.label}

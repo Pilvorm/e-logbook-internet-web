@@ -5,7 +5,7 @@ import masterUserInternalReducers from "./master/userInternal";
 import masterInternReducers from "./master/intern";
 import masterRoleReducers from "./master/roles";
 import masterAllowanceReducers from "./master/allowance";
-
+import logbookReducers from "./logbook";
 import userProfileReducer from "./userProfile";
 
 export default combineReducers({
@@ -14,5 +14,6 @@ export default combineReducers({
   masterInternReducers,
   masterRoleReducers,
   masterAllowanceReducers,
+  logbookReducers,
   userProfileReducer,
 });

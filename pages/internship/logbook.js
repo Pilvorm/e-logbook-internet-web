@@ -53,6 +53,7 @@ import moment from "moment";
 
 import EditAllowance from "components/ModalForm/EditAllowance";
 import EntryLogbook from "components/ModalForm/EntryLogbook";
+import { FloatingHeader, useOnScreen } from "components/Header/FloatingHeader";
 
 const CreateTableRow = ({ dispatch, data, index }) => {
   const [editPopup, setEditPopup] = useState(false);
@@ -109,6 +110,7 @@ const Logbook = (props) => {
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const { containerRef, isInView } = useOnScreen();
   const currentDate = new Date();
   const startDate = moment("2023-02-20T12:00:00Z");
   const endDate = moment("2024-02-16T12:00:00Z");
@@ -225,8 +227,7 @@ const Logbook = (props) => {
           </div>
         </div>
       </Card>
-
-      <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
+      <div className="d-flex justify-content-between align-items-center w-100 flex-wrap mb-2">
         <div className="d-flex align-items-center mr-2">
           <Label for="rows-per-page" className="font-weight-bold">
             Month
@@ -304,12 +305,9 @@ const Logbook = (props) => {
           className="d-flex align-items-center justify-content-start"
           md="9"
           sm="12"
-        ></Col>
-        <Col
-          className="d-flex align-items-center justify-content-end"
-          md="3"
-          sm="12"
-        ></Col>
+        >
+          <span>Signed</span>
+        </Col>
       </Row>
     </div>
   );
