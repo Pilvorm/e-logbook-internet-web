@@ -114,9 +114,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
           console.log("step 2", response);
           if (response.data != false) {
             response.data.map(async (item) => {
-              if (item.applicationCode === "ELOGBOOK") {
-                return temp.push(item.roleCode); // multi roles
-              }
+              return temp.push(item.roleCode); // multi roles
             });
           } else {
             return (temp = response.data[0].roleCode);

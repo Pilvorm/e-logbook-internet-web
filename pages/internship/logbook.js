@@ -13,6 +13,7 @@ import {
   Trash,
   Check,
   ExternalLink,
+  Play,
 } from "react-feather";
 import {
   Button,
@@ -103,8 +104,8 @@ const CreateTableRow = ({ dispatch, data, index }) => {
   );
 };
 
-const InternshipAttendance = (props) => {
-  const { query, dataFilter } = props;
+const Logbook = (props) => {
+  const { token, sessionData, query, dataFilter } = props;
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -159,9 +160,9 @@ const InternshipAttendance = (props) => {
 
   const [monthDays, setMonthDays] = useState(setDays2(monthQuery));
 
-  // useEffect(() => {
-  //   dispatch(reauthenticate(token));
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(reauthenticate(token));
+  }, [dispatch]);
 
   const handleMonthChange = (value) => {
     router.push({
@@ -191,17 +192,17 @@ const InternshipAttendance = (props) => {
       <BreadCrumbs
         breadCrumbParent="Internship"
         breadCrumbParent2="Logbook"
-        // breadCrumbActive={`${sessionData.user.Name}`}
-        breadCrumbActive={`Daniel Emerald Sumarly`}
+        breadCrumbActive={`${sessionData.user.Name}`}
+        // breadCrumbActive={`Daniel Emerald Sumarly`}
       />
       <div className="d-flex align-items-center my-3">
-        <h2>Intern Logbook - Balikin Session</h2>
+        <h2>Intern Logbook</h2>
       </div>
 
       <Card className="p-2 d-flex">
         <div className="flex-col align-items-center ">
           <div className="">
-            {/* <InternDetailCard
+            <InternDetailCard
               nama={`${sessionData.user.Name}`}
               department={`${sessionData.user.Dept}`}
               school={`${sessionData.user.SchoolName}`}
@@ -210,8 +211,8 @@ const InternshipAttendance = (props) => {
               status="Complete"
               workingDays="14 WFH / 8 WFO"
               pay="Rp 1.920.000"
-            /> */}
-            <InternDetailCard
+            />
+            {/* <InternDetailCard
               nama={`Daniel Emerald Sumarly`}
               department={`Corporate IT`}
               school={`Bina Nusantara University`}
@@ -220,7 +221,7 @@ const InternshipAttendance = (props) => {
               status="Complete"
               workingDays="14 WFH / 8 WFO"
               pay="Rp 1.920.000"
-            />
+            /> */}
           </div>
         </div>
       </Card>
@@ -268,9 +269,9 @@ const InternshipAttendance = (props) => {
               onSaveHandler(transformAndValidation(formik.values));
             }}
           >
-            <Check size={18} />
+            <Play size={18} />
             <span className="align-middle ml-1 d-sm-inline-block d-none">
-              Approve All
+              Submit
             </span>
           </Button.Ripple>
         </div>
@@ -314,37 +315,37 @@ const InternshipAttendance = (props) => {
   );
 };
 
-InternshipAttendance.getLayout = function getLayout(page) {
+Logbook.getLayout = function getLayout(page) {
   return <VerticalLayout>{page}</VerticalLayout>;
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
     const { query } = ctx;
-    // const sessionData = await getSession(ctx);
+    const sessionData = await getSession(ctx);
 
-    // if (!sessionData) {
-    //   return {
-    //     redirect: {
-    //       destination: `/auth?url=${ctx.resolvedUrl}`,
-    //       permanent: false,
-    //     },
-    //   };
-    // }
+    if (!sessionData) {
+      return {
+        redirect: {
+          destination: `/auth?url=${ctx.resolvedUrl}`,
+          permanent: false,
+        },
+      };
+    }
 
-    // const token = sessionData.user.token;
+    const token = sessionData.user.token;
 
-    // store.dispatch(reauthenticate(token));
+    store.dispatch(reauthenticate(token));
 
     return {
       props: {
         query,
-        // token,
+        token,
         dataFilter: query,
-        // sessionData,
+        sessionData,
       },
     };
   }
 );
 
-export default connect((state) => state)(InternshipAttendance);
+export default connect((state) => state)(Logbook);

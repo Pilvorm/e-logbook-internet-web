@@ -21,7 +21,7 @@ export const onLogin = async (data) => {
   try {
     const response = await axios({
       // url: `${AUTH_URL}/api/UserAuthentication/authenticate/nonGuest`,
-      url: `${API_MASTER}/UserAuth/AuthenticateExternal`,
+      url: `${API_MASTER}/UserAuth/AuthenticateInternal`,
       method: "POST",
       headers: getHeaders(),
       data,
@@ -32,15 +32,15 @@ export const onLogin = async (data) => {
   };
 };
 
-export const getRoleUser = async (email) => {
-  console.log(`${USER_ROLE_URL}/api/UserRoles/GetRolesByUPN?UPN=${email}&ApplicationCode=elogbook`);
+export const getRoleUser = async (upn) => {
+  console.log(`${API_MASTER}/Role/GetRoleByUpn?Upn=${upn}`);
   try {
     const response = await axios({
-      url: `${USER_ROLE_URL}/api/UserRoles/GetRolesByUPN?UPN=${email}&ApplicationCode=elogbook`,
+      url: `${API_MASTER}/Role/GetRoleByUpn?Upn=${upn}`,
       method: "GET",
       headers: getHeaders(),
     });
-    return response.data;
+    return response;
   } catch (error) {
     return { status: error.response.status, statusText: error.response.data };
   };
