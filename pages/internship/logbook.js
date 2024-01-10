@@ -1,42 +1,21 @@
 import { HTTP_CODE, SYSTEM_ADMIN, SUPER_USER } from "constant";
-
 import BreadCrumbs from "components/custom/BreadcrumbCustom";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import {
-  ArrowLeft,
-  Edit,
-  Filter,
-  MoreVertical,
-  Plus,
-  Trash,
-  Check,
-  ExternalLink,
-  Play,
-} from "react-feather";
+import { Eye, Edit, ExternalLink, Play } from "react-feather";
 import {
   Button,
   Card,
   Col,
   CustomInput,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  Input,
   Label,
   Row,
   Table,
   UncontrolledDropdown,
 } from "reactstrap";
-
 import { connect, useDispatch } from "react-redux";
 import { reauthenticate } from "redux/actions/auth";
-import {
-  getAllMasterUser,
-  deleteMasterUser,
-  getSbuAsyncSelect,
-} from "redux/actions/master/userInternal";
 import { wrapper } from "redux/store";
 
 import {
@@ -45,15 +24,20 @@ import {
   successAlertNotification,
   deleteAlertNotification,
 } from "components/notification";
-
-import { getPermissionComponentByRoles } from "helpers/getPermission";
 import VerticalLayout from "src/@core/layouts/VerticalLayout";
 import { InternDetailCard } from "components/Card/InternDetailCard";
-import moment from "moment";
-
-import EditAllowance from "components/ModalForm/EditAllowance";
-import EntryLogbook from "components/ModalForm/EntryLogbook";
+import StatusModal from "components/modal/StatusModal";
+import EntryLogbook from "components/modal/form/EntryLogbook";
 import { FloatingHeader, useOnScreen } from "components/Header/FloatingHeader";
+
+import {
+  getAllMasterUser,
+  deleteMasterUser,
+  getSbuAsyncSelect,
+} from "redux/actions/master/userInternal";
+import { getPermissionComponentByRoles } from "helpers/getPermission";
+
+import moment from "moment";
 
 const CreateTableRow = ({ dispatch, data, index }) => {
   const [editPopup, setEditPopup] = useState(false);
@@ -110,6 +94,13 @@ const Logbook = (props) => {
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const [statusModal, setStatusModal] = useState(false);
+  const toggleStatusModal = () => setStatusModal(!statusModal);
+
+  useEffect(() => {
+    dispatch(reauthenticate(token));
+  }, [dispatch]);
+
   const { containerRef, isInView } = useOnScreen();
   const currentDate = new Date();
   const startDate = moment("2023-02-20T12:00:00Z");
@@ -141,18 +132,6 @@ const Logbook = (props) => {
     var arrDays = [];
 
     while (daysInMonth) {
-      var current = moment().date(daysInMonth);
-      arrDays.unshift(current);
-      daysInMonth--;
-    }
-    return arrDays;
-  };
-
-  const setDays2 = (month) => {
-    var daysInMonth = moment(month, "MMMM YYYY").daysInMonth();
-    var arrDays = [];
-
-    while (daysInMonth) {
       var current = moment(`${month} ${daysInMonth}`, "MMMM YYYY DD");
       arrDays.unshift(current);
       daysInMonth--;
@@ -160,11 +139,7 @@ const Logbook = (props) => {
     return arrDays;
   };
 
-  const [monthDays, setMonthDays] = useState(setDays2(monthQuery));
-
-  useEffect(() => {
-    dispatch(reauthenticate(token));
-  }, [dispatch]);
+  const [monthDays, setMonthDays] = useState(setDays(monthQuery));
 
   const handleMonthChange = (value) => {
     router.push({
@@ -194,8 +169,8 @@ const Logbook = (props) => {
       <BreadCrumbs
         breadCrumbParent="Internship"
         breadCrumbParent2="Logbook"
-        breadCrumbActive={`${sessionData.user.Name}`}
-        // breadCrumbActive={`Daniel Emerald Sumarly`}
+        // breadCrumbActive={`${sessionData.user.Name}`}
+        breadCrumbActive={`Daniel Emerald Sumarly`}
       />
       <div className="d-flex align-items-center my-3">
         <h2>Intern Logbook</h2>
@@ -219,7 +194,7 @@ const Logbook = (props) => {
               department={`Corporate IT`}
               school={`Bina Nusantara University`}
               faculty={`Computer Science`}
-              month={`January`}
+              month={`${monthQuery}`}
               status="Complete"
               workingDays="14 WFH / 8 WFO"
               pay="Rp 1.920.000"
@@ -252,6 +227,22 @@ const Logbook = (props) => {
         <div className="d-flex align-items-center">
           <Button.Ripple
             id="saveBtn"
+            color="warning"
+            onClick={toggleStatusModal}
+          >
+            <Eye size={18} />
+            <span className="align-middle ml-1 d-sm-inline-block d-none">
+              Status
+            </span>
+            <StatusModal
+              visible={statusModal}
+              toggle={toggleStatusModal}
+              status={"Waiting for Approval"}
+            />
+          </Button.Ripple>
+          <Button.Ripple
+            id="saveBtn"
+            className="ml-1"
             color="warning"
             onClick={() => {
               onSaveHandler(transformAndValidation(formik.values));
@@ -339,8 +330,8 @@ export const getServerSideProps = wrapper.getServerSideProps(
       props: {
         query,
         token,
-        dataFilter: query,
         sessionData,
+        dataFilter: query,
       },
     };
   }
