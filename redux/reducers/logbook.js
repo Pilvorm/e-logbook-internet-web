@@ -6,9 +6,6 @@ import {
 
 const initialState = {
   data: [],
-  currentPage: 0,
-  totalPage: 0,
-  pageSize: 0,
 };
 
 const logbookReducers = (state = initialState, { type, payload }) => {
@@ -16,11 +13,7 @@ const logbookReducers = (state = initialState, { type, payload }) => {
     case GET_LOGBOOK_DATA:
       return {
         ...state,
-        data: payload.data,
-        currentPage: payload.currentPage,
-        totalPage: payload.totalPage,
-        totalData: payload.totalData,
-        pageSize: payload.pageSize,
+        data: payload,
       };
     case CREATE_LOGBOOK_DATA:
       return payload;

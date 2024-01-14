@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev:local": "env-cmd -f .env.development.local next dev -p 8080",
+    "dev:local": "env-cmd -f .env.development.local next dev -p 8081",
     "dev:development": "env-cmd -f .env.development next dev",
-    "dev:staging": "env-cmd -f .env.staging next dev -p 8080",
-    "dev:staging3scale": "env-cmd -f .env.staging3Scale next dev -p 8080",
+    "dev:staging": "env-cmd -f .env.staging next dev -p 8081",
+    "dev:staging3scale": "env-cmd -f .env.staging3Scale next dev -p 8081",
     "dev:prod": "env-cmd -f .env.production next dev",
     "build:local": "env-cmd -f .env.development.local next build",
     "build:development": "env-cmd -f .env.development next build",

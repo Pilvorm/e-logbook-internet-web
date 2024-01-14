@@ -23,43 +23,76 @@ import { createLogbookData } from "redux/actions/logbook";
 import * as yup from "yup";
 import FormikInput from "components/CustomInputs/CustomInput";
 import CustomRadio from "components/CustomInputs/CustomRadio";
+import moment from "moment";
 
-const validationSchema = yup
-  .object({
-    wfhAllowanceFee: yup.number().min(1, "Must be greather than 0").required(),
-    wfoAllowanceFee: yup.number().min(1, "Must be greather than 0").required(),
-  })
-  .required();
-
-const EntryLogbook = ({ visible, toggle, data, sessionData, logbookData, monthQuery, ...props }) => {
+const EntryLogbook = ({
+  visible,
+  toggle,
+  data,
+  sessionData,
+  logbookData,
+  monthQuery,
+  ...props
+}) => {
   const router = useRouter();
   const dispatch = useDispatch();
 
   const [dayOff, setDayOff] = useState(false);
 
+  const validationSchema = yup
+    .object({
+      workType: dayOff
+        ? yup.string().optional
+        : yup.string().required("Work Type is required"),
+      activity: yup.string().required("Activity is required"),
+    })
+    .required();
+
   const onSubmit = (values, actions) => {
     const { date, workType, activity } = values;
 
+    // let bodyData = {
+    //   name: sessionData.user.Name,
+    //   upn: sessionData.user.UserPrincipalName,
+    //   departmentName: sessionData.user.Dept,
+    //   schoolCode: sessionData.user.SchoolCode,
+    //   schoolName: sessionData.user.SchoolName,
+    //   facultyCode: sessionData.user.FacultyCode,
+    //   facultyName: sessionData.user.Faculty,
+    //   month: monthQuery,
+    //   logbookdays: [
+    //     {
+    //       date: date.format("YYYY-MM-DD"),
+    //       workType: workType,
+    //       activity,
+    //     },
+    //   ],
+    // };
+
+    // console.log(bodyData);
+
     dispatch(
       createLogbookData({
-        name: sessionData.user.name,
+        name: sessionData.user.Name,
         upn: sessionData.user.UserPrincipalName,
-        departmentName: sessionData.user.dept,
-        schoolCode: sessionData.user.schoolCode,
-        schoolName: sessionData.user.schoolName,
-        facultyCode: sessionData.user.facultyCode,
-        facultyName: sessionData.user.faculty,
+        departmentName: sessionData.user.Dept,
+        schoolCode: sessionData.user.SchoolCode,
+        schoolName: sessionData.user.SchoolName,
+        facultyCode: sessionData.user.FacultyCode,
+        facultyName: sessionData.user.Faculty,
         month: monthQuery,
-        logbookdays:[
-          date,
-          workType,
-          activity
-        ]
+        logbookdays: [
+          {
+            date: date.format("YYYY-MM-DD"),
+            workType: workType,
+            activity,
+          },
+        ],
       })
     ).then((res) => {
       if (res.status === HTTP_CODE.OK) {
         actions.setSubmitting(false);
-        successAlertNotification("Success", "Data Updated Successfully");
+        successAlertNotification("Success", "Data Saved Successfully");
         router.push({
           pathname: router.pathname,
         });
@@ -109,7 +142,7 @@ const EntryLogbook = ({ visible, toggle, data, sessionData, logbookData, monthQu
           activity: "",
         }}
         validationSchema={validationSchema}
-        // onSubmit={onSubmit}
+        onSubmit={onSubmit}
       >
         {({
           values,
@@ -130,7 +163,7 @@ const EntryLogbook = ({ visible, toggle, data, sessionData, logbookData, monthQu
                     name="date"
                     type="text"
                     placeholder="Date"
-                    defaultValue={values.date}
+                    defaultValue={values.date.format("ddd, DD MMM YYYY")}
                     onChange={handleChange("date")}
                     disabled
                   />
@@ -168,6 +201,9 @@ const EntryLogbook = ({ visible, toggle, data, sessionData, logbookData, monthQu
                     value={values.activity}
                     disabled={dayOff}
                   />
+                  {/* {errors.activity && (
+                    <div className="text-danger">{errors.activity}</div>
+                  )} */}
                 </FormGroup>
               </form>
             </ModalBody>
@@ -175,8 +211,8 @@ const EntryLogbook = ({ visible, toggle, data, sessionData, logbookData, monthQu
               <Button
                 outline={!dayOff}
                 color="danger"
-                id="submitBtn"
-                name="submitBtn"
+                id="dayOffBtn"
+                name="dayOffBtn"
                 onClick={() => {
                   resetForm();
                   setDayOff(!dayOff);
@@ -185,6 +221,7 @@ const EntryLogbook = ({ visible, toggle, data, sessionData, logbookData, monthQu
                 DAY OFF
               </Button>
               <Button
+                type="submit"
                 color="success"
                 id="submitBtn"
                 name="submitBtn"

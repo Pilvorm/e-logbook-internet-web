@@ -60,7 +60,7 @@ const StatusModal = ({ visible, toggle, status }) => {
         />
       </ModalBody>
       <ModalFooter>
-        <Button color="danger" outline onClick={() => openModalHandler()}>
+        <Button color="danger" outline onClick={toggle}>
           Close
         </Button>
       </ModalFooter>

@@ -1,4 +1,4 @@
-import { EDUCATION_DATA, COMPANY_DATA, DEPARTMENT_DATA } from "constant";
+import { EDUCATION_DATA, MONTH_OPTIONS, COMPANY_DATA, DEPARTMENT_DATA } from "constant";
 import Link from "next/link";
 import Image from "next/image";
 import InputPasswordToggle from "src/@core/components/input-password-toggle";
@@ -87,7 +87,7 @@ const LoginPage = (props) => {
   const [selectedCompany, setSelectedCompany] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState([]);
-  const [emailUser, setEmailUser] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState([]);
   const secret = process.env.NEXT_PUBLIC_API_SECRET_KEY_JWT ?? "";
 
   const [detailForm, setDetailForm] = useState(false);
@@ -309,7 +309,7 @@ const LoginPage = (props) => {
         mentorName: selectedMentor.name,
         companyCode: selectedCompany.companyCode,
         companyName: selectedCompany.companyName,
-        internshipPeriodMonth: 12,
+        internshipPeriodMonth: selectedPeriod.value,
         userRole: {
           roleCode: "INTERN",
           roleName: "INTERN",
@@ -765,7 +765,7 @@ const LoginPage = (props) => {
                             </FormGroup>
                           </Col>
                           <Col md="6">
-                            <FormGroup tag={Col} md="12">
+                            {/* <FormGroup tag={Col} md="12">
                               <FormikDatePicker
                                 label="Internship End Date"
                                 name="endDate"
@@ -774,6 +774,27 @@ const LoginPage = (props) => {
                               {errors.endDate && (
                                 <div className="text-danger">
                                   {errors.endDate}
+                                </div>
+                              )}
+                            </FormGroup> */}
+                            <FormGroup tag={Col} md="12">
+                              <Label className="form-label font-weight-bold">
+                                Internship Period Month <span className="text-danger">*</span>
+                              </Label>
+                              <AsyncSelect
+                                id="internshipPeriodMonth"
+                                name="internshipPeriodMonth"
+                                classNamePrefix="select"
+                                cacheOptions
+                                defaultOptions={MONTH_OPTIONS}
+                                placeholder="Select"
+                                onChange={(e) => {
+                                  setSelectedPeriod(e);
+                                }}
+                              />
+                              {errors.internshipPeriodMonth && touched.internshipPeriodMonth && (
+                                <div className="text-danger">
+                                  {errors.internshipPeriodMonth}
                                 </div>
                               )}
                             </FormGroup>

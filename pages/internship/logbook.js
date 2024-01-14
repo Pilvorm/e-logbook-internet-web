@@ -1,19 +1,11 @@
 import { HTTP_CODE, SYSTEM_ADMIN, SUPER_USER } from "constant";
+
 import BreadCrumbs from "components/custom/BreadcrumbCustom";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Eye, Edit, ExternalLink, Play } from "react-feather";
-import {
-  Button,
-  Card,
-  Col,
-  CustomInput,
-  Label,
-  Row,
-  Table,
-  UncontrolledDropdown,
-} from "reactstrap";
+import { Button, Card, Col, CustomInput, Label, Row, Table } from "reactstrap";
 import { connect, useDispatch } from "react-redux";
 import { reauthenticate } from "redux/actions/auth";
 import { wrapper } from "redux/store";
@@ -30,16 +22,13 @@ import StatusModal from "components/modal/StatusModal";
 import EntryLogbook from "components/modal/form/EntryLogbook";
 import { FloatingHeader, useOnScreen } from "components/Header/FloatingHeader";
 
-import {
-  getAllMasterUser,
-  deleteMasterUser,
-  getSbuAsyncSelect,
-} from "redux/actions/master/userInternal";
+import { getAllMasterUserInternal } from "redux/actions/master/userInternal";
+import { getLogbookData } from "redux/actions/logbook";
 import { getPermissionComponentByRoles } from "helpers/getPermission";
 
 import moment from "moment";
 
-const CreateTableRow = ({ dispatch, data, index }) => {
+const EntryRow = ({ data, index, monthQuery, sessionData }) => {
   const [editPopup, setEditPopup] = useState(false);
   const toggleEditPopup = () => setEditPopup(!editPopup);
 
@@ -79,7 +68,9 @@ const CreateTableRow = ({ dispatch, data, index }) => {
             <EntryLogbook
               visible={editPopup}
               toggle={toggleEditPopup}
-              date={data.format("ddd, DD MMM YYYY")}
+              date={data}
+              monthQuery={monthQuery}
+              sessionData={sessionData}
               //   data={data}
             />
           </Button.Ripple>
@@ -89,13 +80,72 @@ const CreateTableRow = ({ dispatch, data, index }) => {
   );
 };
 
+const WeekendRow = ({ data, index }) => {
+  const [editPopup, setEditPopup] = useState(false);
+  const toggleEditPopup = () => setEditPopup(!editPopup);
+
+  const currentDate = new Date();
+  const isWeekend = moment(data).day() == 6 || moment(data).day() == 0;
+  const isFutureDate = moment(data).toDate() > currentDate;
+
+  return (
+    isWeekend && (
+      <tr key={index}>
+        <td>{index + 1}.</td>
+        <td style={{ color: isWeekend && "#DAD8DF" }}>
+          {data.format("ddd, DD MMM YYYY")}
+        </td>
+        <td
+          className="text-left"
+          style={{ width: "40%", color: isWeekend && "#DAD8DF" }}
+        >
+          {isWeekend ? "OFF" : "Lorem"}
+        </td>
+        <td>{isWeekend ? "" : "WFH"}</td>
+        <td style={{ color: "#46A583" }}>
+          {isWeekend ? "" : "Approved by ..."}
+        </td>
+        <td>
+          {isWeekend || isFutureDate ? (
+            ""
+          ) : (
+            <Button.Ripple
+              outline
+              type="submit"
+              color="warning"
+              className="btn-next"
+              onClick={toggleEditPopup}
+            >
+              <Edit size={18} />
+              <span className="ml-50 align-middle d-sm-inline-block d-none">
+                Edit
+              </span>
+              <EntryLogbook
+                visible={editPopup}
+                toggle={toggleEditPopup}
+                date={data.format("ddd, DD MMM YYYY")}
+                //   data={data}
+              />
+            </Button.Ripple>
+          )}
+        </td>
+      </tr>
+    )
+  );
+};
+
 const Logbook = (props) => {
-  const { token, sessionData, query, dataFilter } = props;
+  const { token, sessionData, query, dataLogbook, dataFilter } = props;
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const [statusModal, setStatusModal] = useState(false);
-  const toggleStatusModal = () => setStatusModal(!statusModal);
+  console.log("SESSION");
+  console.log(sessionData);
+
+  console.log("DATA LOGBOOK");
+  console.log(dataLogbook);
+
+  console.log(moment(dataLogbook.data[0].logbookDays[0].date).format("ddd, DD MMM YYYY"));
 
   useEffect(() => {
     dispatch(reauthenticate(token));
@@ -133,13 +183,38 @@ const Logbook = (props) => {
 
     while (daysInMonth) {
       var current = moment(`${month} ${daysInMonth}`, "MMMM YYYY DD");
+      // if (!(moment(current).day() == 6 || moment(current).day() == 0)) {
       arrDays.unshift(current);
+      // }
       daysInMonth--;
     }
     return arrDays;
   };
 
+  const isWeekend = (day) => {
+    if (moment(day).day() == 6 || moment(day).day() == 0) {
+      return true;
+    }
+    return false;
+  };
+
   const [monthDays, setMonthDays] = useState(setDays(monthQuery));
+  const [daysInMonth, setDaysInMonth] = useState(
+    moment(monthQuery, "MMMM YYYY").daysInMonth()
+  );
+
+  const temp = () => {
+    let count = daysInMonth;
+    let arr = [];
+    while(count) {
+      arr.unshift({})
+      count--;
+    }
+    return arr;
+  }
+  
+  console.log("TEST")
+  console.log(temp());
 
   const handleMonthChange = (value) => {
     router.push({
@@ -150,28 +225,10 @@ const Logbook = (props) => {
       },
     });
   };
-
-  const handleDelete = (e, data) => {
-    e.preventDefault();
-    confirmAlertNotification(
-      "Delete Item",
-      "Are you sure to delete this document?",
-      () => {
-        dispatch(deleteMasterUser(data.nik, data.userPrincipalName)).then(
-          (res) => {}
-        );
-      }
-    );
-  };
-
+  
   return (
     <div>
-      <BreadCrumbs
-        breadCrumbParent="Internship"
-        breadCrumbParent2="Logbook"
-        // breadCrumbActive={`${sessionData.user.Name}`}
-        breadCrumbActive={`Daniel Emerald Sumarly`}
-      />
+      <BreadCrumbs breadCrumbParent="Internship" breadCrumbActive="Logbook" />
       <div className="d-flex align-items-center my-3">
         <h2>Intern Logbook</h2>
       </div>
@@ -227,21 +284,6 @@ const Logbook = (props) => {
         <div className="d-flex align-items-center">
           <Button.Ripple
             id="saveBtn"
-            color="warning"
-            onClick={toggleStatusModal}
-          >
-            <Eye size={18} />
-            <span className="align-middle ml-1 d-sm-inline-block d-none">
-              Status
-            </span>
-            <StatusModal
-              visible={statusModal}
-              toggle={toggleStatusModal}
-              status={"Waiting for Approval"}
-            />
-          </Button.Ripple>
-          <Button.Ripple
-            id="saveBtn"
             className="ml-1"
             color="warning"
             onClick={() => {
@@ -282,11 +324,12 @@ const Logbook = (props) => {
         <tbody className="text-center text-break">
           {monthDays &&
             monthDays.map((data, index) => (
-              <CreateTableRow
+              <EntryRow
                 key={index}
-                dispatch={dispatch}
                 data={data}
                 index={index}
+                monthQuery={monthQuery}
+                sessionData={sessionData}
               />
             ))}
         </tbody>
@@ -326,10 +369,19 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     store.dispatch(reauthenticate(token));
 
+    await store.dispatch(
+      getLogbookData({
+        "CSTM-UPN": sessionData.user.UserPrincipalName,
+      })
+    );
+
+    const dataLogbook = store.getState().logbookReducers;
+
     return {
       props: {
         query,
         token,
+        dataLogbook,
         sessionData,
         dataFilter: query,
       },

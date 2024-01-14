@@ -40,7 +40,7 @@ const ConfirmAlert = ({
             id="yesConfirm"
             className="bg-success px-2 rounded text-white d-flex justify-content-center align-items-center mr-2 c-button"
           >
-            {newButton ? "Ya" : "OK"}
+            {newButton ? "Yes" : "OK"}
           </div>
           {newButton && (
             <div
@@ -49,7 +49,7 @@ const ConfirmAlert = ({
               id="noConfirm"
               className="bg-success px-2 rounded text-white d-flex justify-content-center align-items-center mr-2 c-button"
             >
-              Tidak
+              No
             </div>
           )}
         </div>
