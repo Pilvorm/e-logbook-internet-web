@@ -18,7 +18,6 @@ import {
 } from "components/notification";
 import VerticalLayout from "src/@core/layouts/VerticalLayout";
 import { InternDetailCard } from "components/Card/InternDetailCard";
-import StatusModal from "components/modal/StatusModal";
 import EntryLogbook from "components/modal/form/EntryLogbook";
 import { FloatingHeader, useOnScreen } from "components/Header/FloatingHeader";
 
@@ -28,7 +27,7 @@ import { getPermissionComponentByRoles } from "helpers/getPermission";
 
 import moment from "moment";
 
-const EntryRow = ({ data, index, monthQuery, sessionData, logbookData }) => {
+const EntryRow = ({ data, index, monthQuery, sessionData, dataLogbook, logbookDays }) => {
   const [editPopup, setEditPopup] = useState(false);
   const toggleEditPopup = () => setEditPopup(!editPopup);
 
@@ -46,16 +45,16 @@ const EntryRow = ({ data, index, monthQuery, sessionData, logbookData }) => {
         className="text-left"
         style={{ width: "40%", color: isWeekend && "#DAD8DF" }}
       >
-        {isWeekend ? "OFF" : `${logbookData[index]?.activity ?? "-"}`}
+        {isWeekend ? "OFF" : `${logbookDays[index]?.activity ?? "-"}`}
       </td>
-      <td>{isWeekend ? "" : `${logbookData[index]?.workType ?? "-"}`}</td>
+      <td>{isWeekend ? "" : `${logbookDays[index]?.workType ?? "-"}`}</td>
       <td style={{ color: "#46A583" }}>{isWeekend ? "" : "Approved by ..."}</td>
       <td>
         {isWeekend || isFutureDate ? (
           ""
         ) : (
           <Button.Ripple
-            outline={!logbookData[index]?.activity}
+            outline={!logbookDays[index]?.activity}
             type="submit"
             color="warning"
             className="btn-next"
@@ -71,7 +70,8 @@ const EntryRow = ({ data, index, monthQuery, sessionData, logbookData }) => {
               date={data}
               monthQuery={monthQuery}
               sessionData={sessionData}
-              logbookData={logbookData[index]}
+              dataLogbook={dataLogbook}
+              logbookDays={logbookDays[index]}
             />
           </Button.Ripple>
         )}
@@ -195,7 +195,7 @@ const Logbook = (props) => {
     moment(monthQuery, "MMMM YYYY").daysInMonth()
   );
 
-  const initLogbookData = () => {
+  const initLogbookDays = () => {
     let count = daysInMonth;
     let arr = [];
     while (count) {
@@ -205,25 +205,25 @@ const Logbook = (props) => {
     return arr;
   };
 
-  const [mainLogbookData, setMainLogbookData] = useState(initLogbookData()); //array with 31 empty objects
+  const [logbookDays, setLogbookDays] = useState(initLogbookDays()); //array with 31 empty objects
 
-  const fillMainLogbookData = () => {
+  const fillLogbookDays = () => {
     let index = 0;
-    let temp = initLogbookData();
+    let temp = initLogbookDays();
     let logbookDaysLength = dataLogbook.data[0].logbookDays.length;
     for (var i = 0; i < logbookDaysLength; i++) {
       index = moment(dataLogbook.data[0].logbookDays[i].date).day() - 1;
       temp[index] = dataLogbook.data[0].logbookDays[i];
     }
-    setMainLogbookData(temp);
+    setLogbookDays(temp);
   };
 
   useEffect(() => {
-    fillMainLogbookData();
+    fillLogbookDays();
   }, []);
 
   console.log("OK");
-  console.log(mainLogbookData);
+  console.log(logbookDays);
 
   const handleMonthChange = (value) => {
     router.push({
@@ -251,7 +251,7 @@ const Logbook = (props) => {
               school={`${sessionData.user.SchoolName}`}
               faculty={`${sessionData.user.Faculty}`}
               month={`${monthQuery}`}
-              status="Complete"
+              status={dataLogbook.data[0].status.toUpperCase()}
               workingDays="14 WFH / 8 WFO"
               pay="Rp 1.920.000"
             />
@@ -339,7 +339,8 @@ const Logbook = (props) => {
                 index={index}
                 monthQuery={monthQuery}
                 sessionData={sessionData}
-                logbookData={mainLogbookData}
+                dataLogbook={dataLogbook.data[0]}
+                logbookDays={logbookDays}
               />
             ))}
         </tbody>

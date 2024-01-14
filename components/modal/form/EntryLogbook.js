@@ -30,7 +30,8 @@ const EntryLogbook = ({
   toggle,
   data,
   sessionData,
-  logbookData,
+  dataLogbook,
+  logbookDays,
   monthQuery,
   ...props
 }) => {
@@ -73,6 +74,9 @@ const EntryLogbook = ({
 
     dispatch(
       createLogbookData({
+        ...dataLogbook,
+        docNo: dataLogbook.docNo,
+        id: dataLogbook.id,
         name: sessionData.user.Name,
         upn: sessionData.user.UserPrincipalName,
         departmentName: sessionData.user.Dept,
@@ -81,8 +85,11 @@ const EntryLogbook = ({
         facultyCode: sessionData.user.FacultyCode,
         facultyName: sessionData.user.Faculty,
         month: monthQuery,
-        logbookdays: [
+        logbookDays: [
           {
+            ...logbookDays,
+            id: logbookDays.id,
+            logbookId: dataLogbook.id,
             date: date.format("YYYY-MM-DD"),
             workType: workType,
             activity,
@@ -138,8 +145,8 @@ const EntryLogbook = ({
       <Formik
         initialValues={{
           date: props.date ?? "",
-          workType: logbookData.workType ?? "",
-          activity: logbookData.activity ?? "",
+          workType: logbookDays.workType ?? "",
+          activity: logbookDays.activity ?? "",
         }}
         validationSchema={validationSchema}
         onSubmit={onSubmit}

@@ -84,7 +84,7 @@ export const InternDetailCard = ({
           <StatusModal
             visible={statusModal}
             toggle={toggleStatusModal}
-            status={"Waiting for Approval"}
+            status={status}
           />
         </Button.Ripple>
         {/* <div className="d-flex flex-column mt-2">
