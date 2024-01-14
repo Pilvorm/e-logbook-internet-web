@@ -138,8 +138,8 @@ const EntryLogbook = ({
       <Formik
         initialValues={{
           date: props.date ?? "",
-          workType: "",
-          activity: "",
+          workType: logbookData.workType ?? "",
+          activity: logbookData.activity ?? "",
         }}
         validationSchema={validationSchema}
         onSubmit={onSubmit}

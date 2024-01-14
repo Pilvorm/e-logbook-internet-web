@@ -28,7 +28,7 @@ import { getPermissionComponentByRoles } from "helpers/getPermission";
 
 import moment from "moment";
 
-const EntryRow = ({ data, index, monthQuery, sessionData }) => {
+const EntryRow = ({ data, index, monthQuery, sessionData, logbookData }) => {
   const [editPopup, setEditPopup] = useState(false);
   const toggleEditPopup = () => setEditPopup(!editPopup);
 
@@ -46,16 +46,16 @@ const EntryRow = ({ data, index, monthQuery, sessionData }) => {
         className="text-left"
         style={{ width: "40%", color: isWeekend && "#DAD8DF" }}
       >
-        {isWeekend ? "OFF" : "Lorem"}
+        {isWeekend ? "OFF" : `${logbookData[index]?.activity ?? "-"}`}
       </td>
-      <td>{isWeekend ? "" : "WFH"}</td>
+      <td>{isWeekend ? "" : `${logbookData[index]?.workType ?? "-"}`}</td>
       <td style={{ color: "#46A583" }}>{isWeekend ? "" : "Approved by ..."}</td>
       <td>
         {isWeekend || isFutureDate ? (
           ""
         ) : (
           <Button.Ripple
-            outline
+            outline={!logbookData[index]?.activity}
             type="submit"
             color="warning"
             className="btn-next"
@@ -63,7 +63,7 @@ const EntryRow = ({ data, index, monthQuery, sessionData }) => {
           >
             <Edit size={18} />
             <span className="ml-50 align-middle d-sm-inline-block d-none">
-              Edit
+              Entry
             </span>
             <EntryLogbook
               visible={editPopup}
@@ -71,7 +71,7 @@ const EntryRow = ({ data, index, monthQuery, sessionData }) => {
               date={data}
               monthQuery={monthQuery}
               sessionData={sessionData}
-              //   data={data}
+              logbookData={logbookData[index]}
             />
           </Button.Ripple>
         )}
@@ -139,14 +139,6 @@ const Logbook = (props) => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  console.log("SESSION");
-  console.log(sessionData);
-
-  console.log("DATA LOGBOOK");
-  console.log(dataLogbook);
-
-  console.log(moment(dataLogbook.data[0].logbookDays[0].date).format("ddd, DD MMM YYYY"));
-
   useEffect(() => {
     dispatch(reauthenticate(token));
   }, [dispatch]);
@@ -203,18 +195,35 @@ const Logbook = (props) => {
     moment(monthQuery, "MMMM YYYY").daysInMonth()
   );
 
-  const temp = () => {
+  const initLogbookData = () => {
     let count = daysInMonth;
     let arr = [];
-    while(count) {
-      arr.unshift({})
+    while (count) {
+      arr.unshift({});
       count--;
     }
     return arr;
-  }
-  
-  console.log("TEST")
-  console.log(temp());
+  };
+
+  const [mainLogbookData, setMainLogbookData] = useState(initLogbookData()); //array with 31 empty objects
+
+  const fillMainLogbookData = () => {
+    let index = 0;
+    let temp = initLogbookData();
+    let logbookDaysLength = dataLogbook.data[0].logbookDays.length;
+    for (var i = 0; i < logbookDaysLength; i++) {
+      index = moment(dataLogbook.data[0].logbookDays[i].date).day() - 1;
+      temp[index] = dataLogbook.data[0].logbookDays[i];
+    }
+    setMainLogbookData(temp);
+  };
+
+  useEffect(() => {
+    fillMainLogbookData();
+  }, []);
+
+  console.log("OK");
+  console.log(mainLogbookData);
 
   const handleMonthChange = (value) => {
     router.push({
@@ -225,7 +234,7 @@ const Logbook = (props) => {
       },
     });
   };
-  
+
   return (
     <div>
       <BreadCrumbs breadCrumbParent="Internship" breadCrumbActive="Logbook" />
@@ -330,6 +339,7 @@ const Logbook = (props) => {
                 index={index}
                 monthQuery={monthQuery}
                 sessionData={sessionData}
+                logbookData={mainLogbookData}
               />
             ))}
         </tbody>
