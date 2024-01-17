@@ -31,13 +31,13 @@ const Home = ({ userRoles, query, roles, sessionData }) => {
   const isMobileWidth = useMobileDetector();
   const [moduleMobile, setModuleMobile] = useState([]);
 
-  useEffect(async () => {
-    if (isMobileWidth) {
-      const res = await getModuleMobile();
-      console.log(res, "<<<<<");
-      setModuleMobile(res.data);
-    }
-  }, [isMobileWidth]);
+  // useEffect(async () => {
+  //   if (isMobileWidth) {
+  //     const res = await getModuleMobile();
+  //     console.log(res, "<<<<<");
+  //     setModuleMobile(res.data);
+  //   }
+  // }, [isMobileWidth]);
 
   useEffect(() => {
     if (query.url) {
@@ -60,22 +60,6 @@ const Home = ({ userRoles, query, roles, sessionData }) => {
         <Dashboard />
         <div className="mt-1"></div>
       </div>
-      <div className="mt-3">
-        <DashboardChart />
-      </div>
-      <div className="mt-3">
-        <DashboardComplaint />
-        <div className="mt-2"></div>
-      </div>
-      <div className="mt-3">
-        <DashboardAccident />
-      </div>
-      <div className="mt-3">
-        <DashboardNearmiss />
-      </div>
-      <div className="mt-3">
-        <DashboardVictim />
-      </div>
     </>
   );
 };
@@ -93,46 +77,46 @@ export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
     const sessionData = await getSession(ctx);
 
-    if (!sessionData) {
-      return {
-        redirect: {
-          destination: "/auth",
-          permanent: false,
-        },
-      };
-    }
+    // if (!sessionData) {
+    //   return {
+    //     redirect: {
+    //       destination: "/auth",
+    //       permanent: false,
+    //     },
+    //   };
+    // }
 
-    let temp = [];
-    try {
-      if (sessionData) {
-        if (sessionData.user.guest) {
-          temp.push("INTERN");
-        } else {
-          const response = await getRoleUser(
-            sessionData.user.UserPrincipalName.replace("@", "%40")
-          );
-          console.log("step 2", response);
-          if (response.data != false) {
-            response.data.map(async (item) => {
-              return temp.push(item.roleCode); // multi roles
-            });
-          } else {
-            return (temp = response.data[0].roleCode);
-          }
-        }
-        store.dispatch(storeUserRoles(temp));
-        // if (typeof window !== "undefined") {
-        //   localStorage.setItem("tes", JSON.stringify(["tes", "ok"]))
-        // }
-      }
-    } catch (err) {}
-    console.log(temp, "temp");
+    // let temp = [];
+    // try {
+    //   if (sessionData) {
+    //     if (sessionData.user.guest) {
+    //       temp.push("INTERN");
+    //     } else {
+    //       const response = await getRoleUser(
+    //         sessionData.user.UserPrincipalName.replace("@", "%40")
+    //       );
+    //       console.log("step 2", response);
+    //       if (response.data != false) {
+    //         response.data.map(async (item) => {
+    //           return temp.push(item.roleCode); // multi roles
+    //         });
+    //       } else {
+    //         return (temp = response.data[0].roleCode);
+    //       }
+    //     }
+    //     store.dispatch(storeUserRoles(temp));
+    //     // if (typeof window !== "undefined") {
+    //     //   localStorage.setItem("tes", JSON.stringify(["tes", "ok"]))
+    //     // }
+    //   }
+    // } catch (err) {}
+    // console.log(temp, "temp");
 
     return {
       props: {
         userRoles: sessionData,
         query: ctx.query,
-        roles: temp,
+        // roles: temp,
         sessionData,
       },
     };

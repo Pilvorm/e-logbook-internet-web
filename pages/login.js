@@ -154,7 +154,7 @@ const Login = (props) => {
               </Form>
             </div>
             <div className="auth-footer-btn d-flex flex-column justify-content-center align-items-center my-2">
-              <p className="m-0">HSSE Version {metadata.appVersion}</p>
+              <p className="m-0">HSSE Version 1.0</p>
               <p className="m-0">
                 &#169;{new Date().getFullYear()} - PT. Kalbe Farma Tbk.
               </p>

@@ -10,11 +10,21 @@ const VerticalNavMenuLink = (props) => {
   const router = useRouter();
 
   return (
-    // {getPermissionComponentSupplier(["Legal", "Supplier"]) && (
-    //   <p>SHAHAHAHAHA</p>
-    // )}
-    getPermissionComponentByRoles(item.roles || []) && (
-      <li
+    // getPermissionComponentByRoles(item.roles || []) && (
+    //   <li
+    //     className={`nav-item ${childItem ? "" : "my-50"} ${
+    //       router.pathname === item.href ? "active" : ""
+    //     }`}
+    //   >
+    //     <Link href={item.href}>
+    //       <a className="d-flex align-items-center">
+    //         {item.icon}
+    //         <span className="menu-item text-truncate">{item.title}</span>
+    //       </a>
+    //     </Link>
+    //   </li>
+    // )
+    <li
         className={`nav-item ${childItem ? "" : "my-50"} ${
           router.pathname === item.href ? "active" : ""
         }`}
@@ -26,7 +36,6 @@ const VerticalNavMenuLink = (props) => {
           </a>
         </Link>
       </li>
-    )
   );
 };
 

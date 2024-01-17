@@ -59,15 +59,15 @@ export const getModule = async () => {
   };
 };
 
-export const getModuleMobile = async () => {
-  try {
-    const response = await axios({
-      url: `${MODULE_URL}/api/Module/Mobile/portalga`,
-      method: "GET",
-      headers: getHeaders(),
-    });
-    return response.data;
-  } catch (error) {
-    return { status: error.response.status, statusText: error.response.data };
-  };
-};
+// export const getModuleMobile = async () => {
+//   try {
+//     const response = await axios({
+//       url: `${MODULE_URL}/api/Module/Mobile/portalga`,
+//       method: "GET",
+//       headers: getHeaders(),
+//     });
+//     return response.data;
+//   } catch (error) {
+//     return { status: error.response.status, statusText: error.response.data };
+//   };
+// };

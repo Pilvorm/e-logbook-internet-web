@@ -79,24 +79,12 @@ import {
   Label,
 } from "reactstrap";
 
-const Wrapper = ({ children, withFormGroup }) => {
-  return (
-    <Fragment>
-      {withFormGroup ? (
-        <FormGroup className="mx-0 px-0 col-12">{children}</FormGroup>
-      ) : (
-        <Fragment>{children}</Fragment>
-      )}
-    </Fragment>
-  );
-};
-
 export default function CustomDatePicker({
   label,
   isBold,
-  disabled,
-  readOnly,
-  withFormGroup = true,
+  disabled = false,
+  readOnly = true,
+  backgroundWhite = true,
   ...props
 }) {
   const [field, meta, helpers] = useField(props);
@@ -105,14 +93,14 @@ export default function CustomDatePicker({
 
   return (
     <Fragment>
-      <Wrapper withFormGroup={withFormGroup}>
+      <FormGroup className="mx-0 px-0 col-12">
         {label && !isBold && (
           <Label
             for={props.name}
             style={{ fontSize: "12px" }}
             className="font-weight-bold"
           >
-            {label} {props.isRequired && <span className="text-danger">*</span>}
+            {label}
           </Label>
         )}
         {label && isBold && (
@@ -121,7 +109,7 @@ export default function CustomDatePicker({
             htmlFor={props.name}
             style={{ fontSize: "12px" }}
           >
-            {label} {props.isRequired && <span className="text-danger">*</span>}
+            {label}
           </span>
         )}
         <Flatpickr
@@ -137,6 +125,9 @@ export default function CustomDatePicker({
             return (
               <InputGroup className="input-group-merge">
                 <Input
+                  style={{
+                    backgroundColor: !disabled ? "white" : "#efefef",
+                  }}
                   {...props}
                   innerRef={ref}
                   disabled={disabled} // Add the disabled prop to make the input disabled
@@ -151,7 +142,7 @@ export default function CustomDatePicker({
             );
           }}
         />
-      </Wrapper>
+      </FormGroup>
     </Fragment>
   );
 }

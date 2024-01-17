@@ -17,7 +17,7 @@ const LoadingIndicator = () => {
         />
         <div className="border-left ml-3 pl-3 py-2">
           <h1 className="m-0">E-Logbook</h1>
-          <p className="m-0">{`v${metadata.appVersion}`}</p>
+          <p className="m-0">1.0</p>
         </div>
       </div>
       <div className="d-flex justify-content-center align-items-center mt-5">

@@ -104,49 +104,6 @@ const UserDropdown = ({ newUser }) => {
         />
       </DropdownToggle>
       <DropdownMenu right>
-        {/* <DropdownItem tag={Link} href="/apps/email">
-          <a className="dropdown-item" onClick={() => router.push("/profile")}>
-            <User size={14} className="mr-75" />
-            <span className="align-middle">Profile</span>
-          </a>
-        </DropdownItem>
-        <DropdownItem tag={Link} href="/apps/email">
-          <a className="dropdown-item">
-            <Mail size={14} className="mr-75" />
-            <span className="align-middle">Inbox</span>
-          </a>
-        </DropdownItem>
-        <DropdownItem tag={Link} href="/apps/todo">
-          <a className="dropdown-item">
-            <CheckSquare size={14} className="mr-75" />
-            <span className="align-middle">Tasks</span>
-          </a>
-        </DropdownItem>
-        <DropdownItem tag={Link} href="/apps/chat">
-          <a className="dropdown-item">
-            <MessageSquare size={14} className="mr-75" />
-            <span className="align-middle">Chats</span>
-          </a>
-        </DropdownItem>
-        <DropdownItem divider />
-        <DropdownItem tag={Link} href="/pages/account-settings">
-          <a className="dropdown-item">
-            <Settings size={14} className="mr-75" />
-            <span className="align-middle">Settings</span>
-          </a>
-        </DropdownItem>
-        <DropdownItem tag={Link} href="/pages/pricing">
-          <a className="dropdown-item">
-            <CreditCard size={14} className="mr-75" />
-            <span className="align-middle">Pricing</span>
-          </a>
-        </DropdownItem>
-        <DropdownItem tag={Link} href="/pages/faq">
-          <a className="dropdown-item">
-            <HelpCircle size={14} className="mr-75" />
-            <span className="align-middle">FAQ</span>
-          </a>
-        </DropdownItem> */}
         {!newUser && (
           <>
             <DropdownItem className="dropdown-item w-100" onClick={togglePopup}>
@@ -155,14 +112,14 @@ const UserDropdown = ({ newUser }) => {
             </DropdownItem>
             <DropdownItem className="dropdown-item w-100" onClick={logoutFunc}>
               <Power size={14} className="mr-75" />
-              <span className="align-middle">Logout</span>
+              <span className="align-middle">Log Out</span>
             </DropdownItem>
           </>
         )}
         {newUser && (
           <DropdownItem className="dropdown-item w-100" onClick={signIn}>
             <Power size={14} className="mr-75" />
-            <span className="align-middle">Login</span>
+            <span className="align-middle">Log In</span>
           </DropdownItem>
         )}
       </DropdownMenu>

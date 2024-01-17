@@ -475,7 +475,7 @@ const LoginPage = (props) => {
                   </div>
                   <div className="auth-footer-btn d-flex flex-column justify-content-center align-items-center my-2">
                     <p className="m-0">
-                      E-Logbook Version {metadata.appVersion}
+                      E-Logbook Version 1.0
                     </p>
                     <p className="m-0">
                       &#169;{new Date().getFullYear()} - PT XYZ Tbk.
@@ -806,7 +806,7 @@ const LoginPage = (props) => {
                 </div>
               </Card>
               <div className="auth-footer-btn d-flex flex-column justify-content-center align-items-center">
-                <p className="m-0">E-Logbook Version {metadata.appVersion}</p>
+                <p className="m-0">E-Logbook Version 1.0</p>
                 <p className="m-0">
                   &#169;{new Date().getFullYear()} - PT XYZ Tbk.
                 </p>

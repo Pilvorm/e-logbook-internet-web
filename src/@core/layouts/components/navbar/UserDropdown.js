@@ -28,6 +28,7 @@ import {
   errorAlertNotification,
   errorSignOutNotification,
 } from "components/notification";
+import { CustomBadge } from "components/Badge/CustomBadge";
 
 const UserDropdown = ({ newUser }) => {
   const { data: session, status } = useSession();
@@ -95,7 +96,7 @@ const UserDropdown = ({ newUser }) => {
               : ""}
           </span>
           <span className="user-status">
-            INTERN —{" "}
+            <CustomBadge type={"SUCCESS"} content="INTERN" /> —{" "}
             {session?.user.CompName
               ? session.user.CompName
               : session.user.CompanyName
@@ -116,14 +117,14 @@ const UserDropdown = ({ newUser }) => {
           <>
             <DropdownItem className="dropdown-item w-100" onClick={logoutFunc}>
               <Power size={14} className="mr-75" />
-              <span className="align-middle">Logout</span>
+              <span className="align-middle">Log Out</span>
             </DropdownItem>
           </>
         )}
         {newUser && (
           <DropdownItem className="dropdown-item w-100" onClick={signIn}>
             <Power size={14} className="mr-75" />
-            <span className="align-middle">Login</span>
+            <span className="align-middle">Log In</span>
           </DropdownItem>
         )}
       </DropdownMenu>

@@ -188,20 +188,20 @@ const LoginPage = (props) => {
                         "Login"
                       )}
                     </Button.Ripple>
-                    <Button.Ripple
+                    {/* <Button.Ripple
                       color="primary"
                       block
                       className="mt-2"
                       onClick={() => router.push("/auth/signUp")}
                     >
                       Sign Up
-                    </Button.Ripple>
+                    </Button.Ripple> */}
                   </Col>
                 </FormGroup>
               </Form>
             </div>
             <div className="auth-footer-btn d-flex flex-column justify-content-center align-items-center my-2">
-              <p className="m-0">E-Logbook Version {metadata.appVersion}</p>
+              <p className="m-0">E-Logbook Version 1.0</p>
               <p className="m-0">
                 &#169;{new Date().getFullYear()} - PT XYZ Tbk.
               </p>

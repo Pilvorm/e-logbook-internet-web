@@ -145,8 +145,8 @@ const EntryLogbook = ({
       <Formik
         initialValues={{
           date: props.date ?? "",
-          workType: logbookDays.workType ?? "",
-          activity: logbookDays.activity ?? "",
+          // workType: logbookDays.workType ?? "",
+          // activity: logbookDays.activity ?? "",
         }}
         validationSchema={validationSchema}
         onSubmit={onSubmit}
@@ -205,7 +205,7 @@ const EntryLogbook = ({
                       resize: "none",
                       height: "150px",
                     }}
-                    value={values.activity}
+                    // value={values.activity}
                     disabled={dayOff}
                   />
                   {/* {errors.activity && (

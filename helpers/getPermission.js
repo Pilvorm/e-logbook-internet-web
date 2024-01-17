@@ -35,16 +35,16 @@ export const getPermissionComponent = (permittedRole) => {
   return similarRoles ? similarRoles.length !== 0 : false;
 };
 
-export const getPermissionComponentByRoles = (permittedRole) => {
-  let userRole = [];
+// export const getPermissionComponentByRoles = (permittedRole) => {
+//   let userRole = [];
 
-  if (typeof window !== "undefined") {
-    const data = JSON.parse(localStorage.getItem("userRoles")) || [];
-    userRole = data;
-  }
+//   if (typeof window !== "undefined") {
+//     const data = JSON.parse(localStorage.getItem("userRoles")) || [];
+//     userRole = data;
+//   }
 
-  const similarRoles =
-    userRole.filter((userRole) => permittedRole.includes(userRole)) || [];
+//   const similarRoles =
+//     userRole.filter((userRole) => permittedRole.includes(userRole)) || [];
 
-  return similarRoles.length !== 0;
-};
+//   return similarRoles.length !== 0;
+// };
