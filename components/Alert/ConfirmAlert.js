@@ -1,5 +1,6 @@
 import React from "react";
 import { X } from "react-feather";
+import { Button } from "reactstrap";
 
 const ConfirmAlert = ({
   title,
@@ -34,24 +35,28 @@ const ConfirmAlert = ({
           {description}
         </div>
         <div className="row p-1 d-flex justify-content-end">
-          <div
-            style={{ height: 32, cursor: "pointer" }}
-            onClick={onConfirm}
-            id="yesConfirm"
-            className="bg-success px-2 rounded text-white d-flex justify-content-center align-items-center mr-2 c-button"
-          >
-            {newButton ? "Yes" : "OK"}
-          </div>
           {newButton && (
-            <div
-              style={{ height: 32, cursor: "pointer" }}
-              onClick={onClose}
+            <Button.Ripple
               id="noConfirm"
-              className="bg-success px-2 rounded text-white d-flex justify-content-center align-items-center mr-2 c-button"
+              color="success"
+              className="btn-next"
+              onClick={onClose}
             >
-              No
-            </div>
+              <span className="align-middle d-sm-inline-block d-none">
+                No
+              </span>
+            </Button.Ripple>
           )}
+          <Button.Ripple
+            id="yesConfirm"
+            color="success"
+            className="btn-next mr-2 ml-1"
+            onClick={onConfirm}
+          >
+            <span className="align-middle d-sm-inline-block d-none">
+              {newButton ? "Yes" : "OK"}
+            </span>
+          </Button.Ripple>
         </div>
       </div>
     </React.Fragment>

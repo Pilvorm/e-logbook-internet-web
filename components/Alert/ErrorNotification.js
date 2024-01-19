@@ -1,7 +1,15 @@
 import React from "react";
 import { X } from "react-feather";
+import { Button } from "reactstrap";
 
-const ErrorNotification = ({ onConfirm, onClose, title, description, isExpired, router }) => {
+const ErrorNotification = ({
+  onConfirm,
+  onClose,
+  title,
+  description,
+  isExpired,
+  router,
+}) => {
   return (
     <React.Fragment>
       <div
@@ -27,27 +35,30 @@ const ErrorNotification = ({ onConfirm, onClose, title, description, isExpired, 
         <div className="d-flex justify-content-start text-left px-2 py-2">
           {description}
         </div>
-        {
-          isExpired &&
+        {isExpired && (
           <div className="text-left px-2">
-            <span style={{fontSize: 14}} >Security code kedaluwarsa? </span>
-            <span 
+            <span style={{ fontSize: 14 }}>Security code kedaluwarsa? </span>
+            <span
               onClick={() => {
-                router.push("/auth?asGuest=true")
-                onClose()
+                router.push("/auth?asGuest=true");
+                onClose();
               }}
-              style={{fontSize: 14, fontWeight: 700, cursor: 'pointer'}}
-            >Klik disini</span>
+              style={{ fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+            >
+              Klik disini
+            </span>
           </div>
-        }
+        )}
         <div className="row p-1 d-flex justify-content-end">
-          <div
-            style={{ height: 32, cursor: "pointer" }}
+          <Button.Ripple
+            color="danger"
+            className="btn-next mr-2"
             onClick={onConfirm}
-            className="bg-danger px-2 rounded text-white d-flex justify-content-center align-items-center mr-2 c-button"
           >
-            OK
-          </div>
+            <span className="align-middle d-sm-inline-block d-none">
+              OK
+            </span>
+          </Button.Ripple>
         </div>
       </div>
     </React.Fragment>

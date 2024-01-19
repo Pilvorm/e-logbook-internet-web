@@ -45,7 +45,7 @@ const Dashboard = (props) => {
             </span>
           </Card>
           <Card tag={Col} className="shadow p-2 d-flex" style={{ gap: "4px" }}>
-            <h4 className="fontweight-normal">{currentMonth}</h4>
+            <h4 className="fontweight-normal">Logbook {currentMonth}</h4>
             <Table responsive className="border">
               <thead className="text-center">
                 <tr>

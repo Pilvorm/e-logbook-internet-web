@@ -2,7 +2,7 @@ import SelfCustomInput from "components/CustomFieldsFormik/CustomInput";
 import { useFormik } from "formik";
 import React, { useState } from "react";
 import { X } from "react-feather";
-import { FormFeedback } from "reactstrap";
+import { Button } from "reactstrap";
 import * as yup from "yup";
 const ReviseReasonSubmit = ({ title, description, onClose, onConfirm }) => {
   const formik = useFormik({
@@ -24,7 +24,13 @@ const ReviseReasonSubmit = ({ title, description, onClose, onConfirm }) => {
         className="bg-white position-absolute rounded col-10 col-md-12 p-0 m-0"
       >
         <div
-          style={{ height: 28, width: 28, top: -14, right: -14 }}
+          style={{
+            height: 28,
+            width: 28,
+            top: -14,
+            right: -14,
+            cursor: "pointer",
+          }}
           className="bg-white rounded d-flex justify-content-center align-items-center position-absolute"
           onClick={onClose}
         >
@@ -39,22 +45,27 @@ const ReviseReasonSubmit = ({ title, description, onClose, onConfirm }) => {
         </div>
         <br />
 
-        <div className="row p-1 d-flex justify-content-between">
-          <div
-            id="okConfirm"
-            style={{ height: 32, cursor: "pointer" }}
-            className="bg-warning px-2 rounded text-white d-flex justify-content-center align-items-center ml-2 cursor-pointer"
-            onClick={() => formik.submitForm()}
-          >
-            OK
-          </div>
-          <div
-            style={{ height: 32, cursor: "pointer" }}
-            className="bg-white text-warning px-2 rounded text-white d-flex justify-content-center align-items-center mr-2 border border-warning cursor-pointer"
+        <div className="row p-1 d-flex justify-content-end">
+          <Button.Ripple
+            outline
+            color="warning"
+            className="btn-next"
             onClick={onClose}
           >
-            Cancel
-          </div>
+            <span className="align-middle d-sm-inline-block d-none">
+              Cancel
+            </span>
+          </Button.Ripple>
+          <Button.Ripple
+            id="okConfirm"
+            color="warning"
+            className="btn-next ml-1 mr-2"
+            onClick={() => formik.submitForm()}
+          >
+            <span className="align-middle d-sm-inline-block d-none">
+              OK
+            </span>
+          </Button.Ripple>
         </div>
       </div>
     </React.Fragment>

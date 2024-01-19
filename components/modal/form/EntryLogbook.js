@@ -119,7 +119,7 @@ const EntryLogbook = ({
           errorMessages = [
             {
               field: "Error",
-              message: "Something went wrong, Please try again later.",
+              message: "Something went wrong, please try again later.",
             },
           ];
         }

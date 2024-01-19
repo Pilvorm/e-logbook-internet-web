@@ -56,7 +56,7 @@ const EntryRow = ({ data, index, monthQuery, sessionData, dataLogbook, logbookDa
           <Button.Ripple
             outline={!logbookDays[index]?.activity}
             type="submit"
-            color="warning"
+            color="primary"
             className="btn-next"
             onClick={toggleEditPopup}
           >

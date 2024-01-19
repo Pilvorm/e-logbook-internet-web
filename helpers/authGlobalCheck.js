@@ -13,8 +13,6 @@ const fetchUserRolesFunction = async (dataSession) => {
   // const [flagCount, setFlagCount] = useState(0);
   let flagCount = 0;
 
-  console.log(dataSession);
-
   if (flagCount <= 1) {
     try {
       fetchUserRoles = await axios({
@@ -30,7 +28,7 @@ const fetchUserRolesFunction = async (dataSession) => {
         JSON.stringify(fetchUserRoles.data.userRoles)
       );
     } catch (error) {
-      alert("Something went wrong");
+      // alert("Something went wrong");
     }
   }
 };
@@ -110,7 +108,8 @@ export const Auth = ({ children, permittedRole }) => {
   //   userRole.filter((userRole) => permittedRole.includes(userRole)) || [];
 
   if (typeof window !== "undefined") {
-    const currentUserRole = localStorage.getItem("currentUserRole");
+    // const currentUserRole = localStorage.getItem("userRoles");
+    const currentUserRole = JSON.parse(localStorage.getItem("userRoles"));
 
     if (
       (!currentUserRole && status === "authenticated") ||
@@ -119,7 +118,7 @@ export const Auth = ({ children, permittedRole }) => {
       fetchUserRolesFunction(session);
     }
 
-    userRole = currentUserRole ? [currentUserRole] : [];
+    userRole = currentUserRole ? currentUserRole : [];
   }
 
   console.log(userRole, "ROLEE");

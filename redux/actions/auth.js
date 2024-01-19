@@ -20,7 +20,6 @@ export const deauthenticate = () => (dispatch) => {
 };
 
 export const storeUserRoles = (roles) => (dispatch) => {
-  console.log(roles, "role <<<");
   if (typeof window !== "undefined") {
     localStorage.setItem("userRoles", JSON.stringify(roles));
   }
