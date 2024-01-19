@@ -4,7 +4,7 @@ import BreadCrumbs from "components/custom/BreadcrumbCustom";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Eye, Edit, ExternalLink, Play } from "react-feather";
+import { Eye, Edit, ExternalLink, Play, Download } from "react-feather";
 import { Button, Card, Col, CustomInput, Label, Row, Table } from "reactstrap";
 import { connect, useDispatch } from "react-redux";
 import { reauthenticate } from "redux/actions/auth";
@@ -27,34 +27,57 @@ import { getPermissionComponentByRoles } from "helpers/getPermission";
 
 import moment from "moment";
 
-const EntryRow = ({ data, index, monthQuery, sessionData, dataLogbook, logbookDays }) => {
+const EntryRow = ({
+  data,
+  index,
+  monthQuery,
+  sessionData,
+  dataLogbook,
+  logbookDays,
+  holidayDates,
+}) => {
   const [editPopup, setEditPopup] = useState(false);
   const toggleEditPopup = () => setEditPopup(!editPopup);
 
   const currentDate = new Date();
   const isWeekend = moment(data).day() == 6 || moment(data).day() == 0;
   const isFutureDate = moment(data).toDate() > currentDate;
+  var holidayIndex = holidayDates
+    .map((date) => {
+      return date.holiday_date;
+    })
+    .indexOf(data.format("YYYY-MM-D"));
+  const isHoliday = holidayIndex > -1;
+  const holidayName = holidayDates[holidayIndex]?.holiday_name ?? "";
+  const blockEntry = isWeekend || isHoliday || isFutureDate ? true : false;
+  const logbook = logbookDays[index];
 
   return (
     <tr key={index}>
       <td>{index + 1}.</td>
-      <td style={{ color: isWeekend && "#DAD8DF" }}>
+      <td style={{ color: blockEntry && "#CAC7D1" }}>
         {data.format("ddd, DD MMM YYYY")}
       </td>
       <td
         className="text-left"
-        style={{ width: "40%", color: isWeekend && "#DAD8DF" }}
+        style={{ width: "40%", color: blockEntry && "#CAC7D1" }}
       >
-        {isWeekend ? "OFF" : `${logbookDays[index]?.activity ?? "-"}`}
+        {isHoliday
+          ? holidayName
+          : isWeekend
+          ? "OFF"
+          : `${logbook?.activity ?? "-"}`}
       </td>
-      <td>{isWeekend ? "" : `${logbookDays[index]?.workType ?? "-"}`}</td>
-      <td style={{ color: "#46A583" }}>{isWeekend ? "" : "Approved by ..."}</td>
+      <td>{blockEntry ? "" : `${logbook?.workType ?? "-"}`}</td>
+      <td style={{ color: "#46A583" }}>
+        {blockEntry ? "" : "Approved by ..."}
+      </td>
       <td>
-        {isWeekend || isFutureDate ? (
+        {blockEntry ? (
           ""
         ) : (
           <Button.Ripple
-            outline={!logbookDays[index]?.activity}
+            outline={!logbook?.activity}
             type="submit"
             color="primary"
             className="btn-next"
@@ -71,7 +94,7 @@ const EntryRow = ({ data, index, monthQuery, sessionData, dataLogbook, logbookDa
               monthQuery={monthQuery}
               sessionData={sessionData}
               dataLogbook={dataLogbook}
-              logbookDays={logbookDays[index]}
+              logbookDays={logbook}
             />
           </Button.Ripple>
         )}
@@ -299,7 +322,7 @@ const Logbook = (props) => {
               onSaveHandler(transformAndValidation(formik.values));
             }}
           >
-            <ExternalLink size={18} />
+            <Download size={18} />
             <span className="align-middle ml-1 d-sm-inline-block d-none">
               Export to PDF
             </span>
@@ -334,13 +357,13 @@ const Logbook = (props) => {
           {monthDays &&
             monthDays.map((data, index) => (
               <EntryRow
-                key={index}
                 data={data}
                 index={index}
                 monthQuery={monthQuery}
                 sessionData={sessionData}
                 dataLogbook={dataLogbook.data[0]}
                 logbookDays={logbookDays}
+                holidayDates={holidayDates}
               />
             ))}
         </tbody>
@@ -388,13 +411,28 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     const dataLogbook = store.getState().logbookReducers;
 
+    const currentMonth =
+      moment().month(query.month?.split(" ")[0]).format("M") ??
+      moment().format("M");
+    const currentYear = query.month?.split(" ")[1] ?? moment().format("YYYY");
+
+    const res = await fetch(
+      `https://api-harilibur.vercel.app/api?month=${currentMonth}&year=${currentYear}`
+    );
+    const holidayDates = await res.json().then((data) => {
+      return data.filter((date) => {
+        return date.is_national_holiday;
+      });
+    });
+
     return {
       props: {
         query,
+        sessionData,
         token,
         dataLogbook,
-        sessionData,
         dataFilter: query,
+        holidayDates,
       },
     };
   }
