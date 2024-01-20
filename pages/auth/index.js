@@ -188,14 +188,14 @@ const LoginPage = (props) => {
                         "Login"
                       )}
                     </Button.Ripple>
-                    {/* <Button.Ripple
+                    <Button.Ripple
                       color="primary"
                       block
                       className="mt-2"
                       onClick={() => router.push("/auth/signUp")}
                     >
                       Sign Up
-                    </Button.Ripple> */}
+                    </Button.Ripple>
                   </Col>
                 </FormGroup>
               </Form>

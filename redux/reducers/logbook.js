@@ -13,7 +13,7 @@ const logbookReducers = (state = initialState, { type, payload }) => {
     case GET_LOGBOOK_DATA:
       return {
         ...state,
-        data: payload,
+        data: payload.data,
       };
     case CREATE_LOGBOOK_DATA:
       return payload;

@@ -28,10 +28,10 @@ import moment from "moment";
 const EntryLogbook = ({
   visible,
   toggle,
-  data,
+  jsDate,
   sessionData,
-  dataLogbook,
-  logbookDays,
+  dataLogbook, //currentDoc
+  currEntry, //date being mapped
   monthQuery,
   ...props
 }) => {
@@ -52,89 +52,102 @@ const EntryLogbook = ({
   const onSubmit = (values, actions) => {
     const { date, workType, activity } = values;
 
-    // let bodyData = {
-    //   name: sessionData.user.Name,
-    //   upn: sessionData.user.UserPrincipalName,
-    //   departmentName: sessionData.user.Dept,
-    //   schoolCode: sessionData.user.SchoolCode,
-    //   schoolName: sessionData.user.SchoolName,
-    //   facultyCode: sessionData.user.FacultyCode,
-    //   facultyName: sessionData.user.Faculty,
-    //   month: monthQuery,
-    //   logbookdays: [
-    //     {
-    //       date: date.format("YYYY-MM-DD"),
-    //       workType: workType,
-    //       activity,
-    //     },
-    //   ],
-    // };
+    const ogIdx = currEntry.originalIndex ?? "";
+
+    let bodyData = {
+      name: sessionData.user.Name,
+      upn: sessionData.user.UserPrincipalName,
+      departmentName: sessionData.user.Dept,
+      schoolCode: sessionData.user.SchoolCode,
+      schoolName: sessionData.user.SchoolName,
+      facultyCode: sessionData.user.FacultyCode,
+      facultyName: sessionData.user.Faculty,
+      month: monthQuery.split(" ")[0],
+      year: monthQuery.split(" ")[1],
+      logbookDays: [
+        {
+          date: jsDate.format("YYYY-MM-DD"),
+          workType,
+          activity,
+        },
+      ],
+    };
+
+    let editData = {
+      ...dataLogbook, //spread current doc
+      docNo: dataLogbook.docNo,
+      id: dataLogbook.id,
+      logbookDays: [
+        ...dataLogbook.logbookDays, //spread current docs logbookDays
+        // !ogIdx && {
+        //   logbookId: dataLogbook.id,
+        //   date: jsDate.format("YYYY-MM-DD"),
+        //   workType,
+        //   activity,
+        // },
+      ],
+    };
+
+    if (ogIdx) {
+      editData.logbookDays[ogIdx] = {
+        date: jsDate.format("YYYY-MM-DD"),
+        workType,
+        activity,
+      };
+    }
+
+    !dataLogbook
+      ? console.log("CREATE DATA", createData)
+      : console.log("EDIT DATA", editData);
 
     // console.log(bodyData);
 
-    dispatch(
-      createLogbookData({
-        ...dataLogbook,
-        docNo: dataLogbook.docNo,
-        id: dataLogbook.id,
-        name: sessionData.user.Name,
-        upn: sessionData.user.UserPrincipalName,
-        departmentName: sessionData.user.Dept,
-        schoolCode: sessionData.user.SchoolCode,
-        schoolName: sessionData.user.SchoolName,
-        facultyCode: sessionData.user.FacultyCode,
-        facultyName: sessionData.user.Faculty,
-        month: monthQuery,
-        logbookDays: [
-          {
-            ...logbookDays,
-            id: logbookDays.id,
-            logbookId: dataLogbook.id,
-            date: date.format("YYYY-MM-DD"),
-            workType: workType,
-            activity,
-          },
-        ],
-      })
-    ).then((res) => {
-      if (res.status === HTTP_CODE.OK) {
-        actions.setSubmitting(false);
-        successAlertNotification("Success", "Data Saved Successfully");
-        router.push({
-          pathname: router.pathname,
-        });
-      } else {
-        actions.setSubmitting(false);
-        console.error(res);
-        let errorMessages = [];
+    // dispatch(
+    //   //if no document avail, create data. If avail edit it
+    //   !dataLogbook ? createLogbookData(bodyData) : createLogbookData(editData)
+    // ).then((res) => {
+    //   if (res.status === HTTP_CODE.OK) {
+    //     actions.setSubmitting(false);
+    //     successAlertNotification("Success", "Data Saved Successfully");
+    //     router.push({
+    //       pathname: router.pathname,
+    //       query: {
+    //         ...router.query,
+    //         month: monthQuery,
+    //       },
+    //     });
+    //   } else {
+    //     actions.setSubmitting(false);
+    //     console.error(res);
+    //     let errorMessages = [];
 
-        try {
-          errorMessages = Object.entries(res.data.errors).flatMap(
-            ([field, messages]) => {
-              return messages.map((message) => ({ field, message }));
-            }
-          );
-        } catch (error) {
-          // Handle the error appropriately
-          errorMessages = [
-            {
-              field: "Error",
-              message: "Something went wrong, please try again later.",
-            },
-          ];
-        }
+    //     try {
+    //       errorMessages = Object.entries(res.data.errors).flatMap(
+    //         ([field, messages]) => {
+    //           return messages.map((message) => ({ field, message }));
+    //         }
+    //       );
+    //     } catch (error) {
+    //       // Handle the error appropriately
+    //       errorMessages = [
+    //         {
+    //           field: "Error",
+    //           message: "Something went wrong, please try again later.",
+    //         },
+    //       ];
+    //     }
 
-        const title = "Error";
-        const message =
-          errorMessages.length > 0
-            ? errorMessages
-                .map(({ field, message }) => `${field}: ${message}`)
-                .join("\n")
-            : "";
+    //     const title = "Error";
+    //     const message =
+    //       errorMessages.length > 0
+    //         ? errorMessages
+    //             .map(({ field, message }) => `${field}: ${message}`)
+    //             .join("\n")
+    //         : "";
 
-        errorAlertNotification(title, message);
-      }
-    });
+    //     errorAlertNotification(title, message);
+    //   }
+    // });
   };
 
   return (
@@ -144,9 +157,9 @@ const EntryLogbook = ({
       </ModalHeader>
       <Formik
         initialValues={{
-          date: props.date ?? "",
-          // workType: logbookDays.workType ?? "",
-          // activity: logbookDays.activity ?? "",
+          date: jsDate ?? "",
+          workType: currEntry.workType ?? "",
+          activity: currEntry.activity ?? "",
         }}
         validationSchema={validationSchema}
         onSubmit={onSubmit}
@@ -222,6 +235,8 @@ const EntryLogbook = ({
                 name="dayOffBtn"
                 onClick={() => {
                   resetForm();
+                  // setFieldValue("workType", "");
+                  // setFieldValue("activity", "");
                   setDayOff(!dayOff);
                 }}
               >

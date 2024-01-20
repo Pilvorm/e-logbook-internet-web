@@ -28,7 +28,7 @@ import { getPermissionComponentByRoles } from "helpers/getPermission";
 import moment from "moment";
 
 const EntryRow = ({
-  data,
+  jsDate,
   index,
   monthQuery,
   sessionData,
@@ -40,23 +40,23 @@ const EntryRow = ({
   const toggleEditPopup = () => setEditPopup(!editPopup);
 
   const currentDate = new Date();
-  const isWeekend = moment(data).day() == 6 || moment(data).day() == 0;
-  const isFutureDate = moment(data).toDate() > currentDate;
+  const isWeekend = moment(jsDate).day() == 6 || moment(jsDate).day() == 0;
+  const isFutureDate = moment(jsDate).toDate() > currentDate;
   var holidayIndex = holidayDates
     .map((date) => {
       return date.holiday_date;
     })
-    .indexOf(data.format("YYYY-MM-D"));
+    .indexOf(jsDate.format("YYYY-MM-D"));
   const isHoliday = holidayIndex > -1;
   const holidayName = holidayDates[holidayIndex]?.holiday_name ?? "";
-  const blockEntry = isWeekend || isHoliday || isFutureDate ? true : false;
-  const logbook = logbookDays[index];
+  const blockEntry = isWeekend || isHoliday ? true : false;
+  const currEntry = logbookDays[index];
 
   return (
     <tr key={index}>
       <td>{index + 1}.</td>
       <td style={{ color: blockEntry && "#CAC7D1" }}>
-        {data.format("ddd, DD MMM YYYY")}
+        {jsDate.format("ddd, DD MMM YYYY")}
       </td>
       <td
         className="text-left"
@@ -66,18 +66,18 @@ const EntryRow = ({
           ? holidayName
           : isWeekend
           ? "OFF"
-          : `${logbook?.activity ?? "-"}`}
+          : `${currEntry?.activity ?? "-"}`}
       </td>
-      <td>{blockEntry ? "" : `${logbook?.workType ?? "-"}`}</td>
+      <td>{blockEntry ? "" : `${currEntry?.workType ?? "-"}`}</td>
       <td style={{ color: "#46A583" }}>
         {blockEntry ? "" : "Approved by ..."}
       </td>
       <td>
-        {blockEntry ? (
+        {blockEntry || isFutureDate ? (
           ""
         ) : (
           <Button.Ripple
-            outline={!logbook?.activity}
+            outline={!currEntry?.activity}
             type="submit"
             color="primary"
             className="btn-next"
@@ -90,11 +90,11 @@ const EntryRow = ({
             <EntryLogbook
               visible={editPopup}
               toggle={toggleEditPopup}
-              date={data}
+              jsDate={jsDate}
               monthQuery={monthQuery}
               sessionData={sessionData}
               dataLogbook={dataLogbook}
-              logbookDays={logbook}
+              currEntry={currEntry}
             />
           </Button.Ripple>
         )}
@@ -103,62 +103,8 @@ const EntryRow = ({
   );
 };
 
-const WeekendRow = ({ data, index }) => {
-  const [editPopup, setEditPopup] = useState(false);
-  const toggleEditPopup = () => setEditPopup(!editPopup);
-
-  const currentDate = new Date();
-  const isWeekend = moment(data).day() == 6 || moment(data).day() == 0;
-  const isFutureDate = moment(data).toDate() > currentDate;
-
-  return (
-    isWeekend && (
-      <tr key={index}>
-        <td>{index + 1}.</td>
-        <td style={{ color: isWeekend && "#DAD8DF" }}>
-          {data.format("ddd, DD MMM YYYY")}
-        </td>
-        <td
-          className="text-left"
-          style={{ width: "40%", color: isWeekend && "#DAD8DF" }}
-        >
-          {isWeekend ? "OFF" : "Lorem"}
-        </td>
-        <td>{isWeekend ? "" : "WFH"}</td>
-        <td style={{ color: "#46A583" }}>
-          {isWeekend ? "" : "Approved by ..."}
-        </td>
-        <td>
-          {isWeekend || isFutureDate ? (
-            ""
-          ) : (
-            <Button.Ripple
-              outline
-              type="submit"
-              color="warning"
-              className="btn-next"
-              onClick={toggleEditPopup}
-            >
-              <Edit size={18} />
-              <span className="ml-50 align-middle d-sm-inline-block d-none">
-                Edit
-              </span>
-              <EntryLogbook
-                visible={editPopup}
-                toggle={toggleEditPopup}
-                date={data.format("ddd, DD MMM YYYY")}
-                //   data={data}
-              />
-            </Button.Ripple>
-          )}
-        </td>
-      </tr>
-    )
-  );
-};
-
 const Logbook = (props) => {
-  const { token, sessionData, query, dataLogbook, dataFilter } = props;
+  const { token, sessionData, query, dataLogbook, holidayDates } = props;
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -206,13 +152,6 @@ const Logbook = (props) => {
     return arrDays;
   };
 
-  const isWeekend = (day) => {
-    if (moment(day).day() == 6 || moment(day).day() == 0) {
-      return true;
-    }
-    return false;
-  };
-
   const [monthDays, setMonthDays] = useState(setDays(monthQuery));
   const [daysInMonth, setDaysInMonth] = useState(
     moment(monthQuery, "MMMM YYYY").daysInMonth()
@@ -231,28 +170,36 @@ const Logbook = (props) => {
   const [logbookDays, setLogbookDays] = useState(initLogbookDays()); //array with 31 empty objects
 
   const fillLogbookDays = () => {
-    let index = 0;
-    let temp = initLogbookDays();
-    let logbookDaysLength = dataLogbook.data[0].logbookDays.length;
-    for (var i = 0; i < logbookDaysLength; i++) {
-      index = moment(dataLogbook.data[0].logbookDays[i].date).day() - 1;
-      temp[index] = dataLogbook.data[0].logbookDays[i];
+    if (dataLogbook) {
+      let index = 0;
+      let temp = initLogbookDays();
+      let logbookDaysLength = dataLogbook.data[0]?.logbookDays.length;
+      for (var i = 0; i < logbookDaysLength; i++) {
+        index = moment(dataLogbook.data[0].logbookDays[i].date).format("D") - 1;
+        temp[index] = {
+          ...dataLogbook.data[0].logbookDays[i],
+          originalIndex: i,
+        };
+      }
+      setLogbookDays(temp);
     }
-    setLogbookDays(temp);
   };
 
   useEffect(() => {
     fillLogbookDays();
   }, []);
 
-  console.log("OK");
-  console.log(logbookDays);
+  console.log("DATA LOGBOOK");
+  console.log(dataLogbook);
+
+  // console.log("OK");
+  // console.log(logbookDays);
 
   const handleMonthChange = (value) => {
     router.push({
       pathname: router.pathname,
       query: {
-        ...dataFilter,
+        ...query,
         month: value,
       },
     });
@@ -274,20 +221,10 @@ const Logbook = (props) => {
               school={`${sessionData.user.SchoolName}`}
               faculty={`${sessionData.user.Faculty}`}
               month={`${monthQuery}`}
-              status={dataLogbook.data[0].status.toUpperCase()}
+              status={dataLogbook.data[0]?.status.toUpperCase()}
               workingDays="14 WFH / 8 WFO"
               pay="Rp 1.920.000"
             />
-            {/* <InternDetailCard
-              nama={`Daniel Emerald Sumarly`}
-              department={`Corporate IT`}
-              school={`Bina Nusantara University`}
-              faculty={`Computer Science`}
-              month={`${monthQuery}`}
-              status="Complete"
-              workingDays="14 WFH / 8 WFO"
-              pay="Rp 1.920.000"
-            /> */}
           </div>
         </div>
       </Card>
@@ -355,13 +292,13 @@ const Logbook = (props) => {
         </thead>
         <tbody className="text-center text-break">
           {monthDays &&
-            monthDays.map((data, index) => (
+            monthDays.map((date, index) => (
               <EntryRow
-                data={data}
+                jsDate={date}
                 index={index}
                 monthQuery={monthQuery}
                 sessionData={sessionData}
-                dataLogbook={dataLogbook.data[0]}
+                dataLogbook={dataLogbook.data[0]} //currentDoc
                 logbookDays={logbookDays}
                 holidayDates={holidayDates}
               />
@@ -403,18 +340,29 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     store.dispatch(reauthenticate(token));
 
+    const monthFilter = query.month
+      ? query.month?.split(" ")[0]
+      : moment().format("MMMM");
+    const yearFilter = query.month
+      ? query.month?.split(" ")[1]
+      : moment().format("YYYY");
+
     await store.dispatch(
       getLogbookData({
         "CSTM-UPN": sessionData.user.UserPrincipalName,
+        "X-PAGINATION": true,
+        "X-FILTER": `upn=${sessionData.user.UserPrincipalName}|month=${monthFilter}|year=${yearFilter}`,
       })
     );
 
     const dataLogbook = store.getState().logbookReducers;
 
-    const currentMonth =
-      moment().month(query.month?.split(" ")[0]).format("M") ??
-      moment().format("M");
-    const currentYear = query.month?.split(" ")[1] ?? moment().format("YYYY");
+    const currentMonth = query.month
+      ? moment().month(query.month?.split(" ")[0]).format("M")
+      : moment().format("M");
+    const currentYear = query.month
+      ? query.month?.split(" ")[1]
+      : moment().format("YYYY");
 
     const res = await fetch(
       `https://api-harilibur.vercel.app/api?month=${currentMonth}&year=${currentYear}`
@@ -431,7 +379,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
         sessionData,
         token,
         dataLogbook,
-        dataFilter: query,
         holidayDates,
       },
     };

@@ -11,6 +11,7 @@ import EntryLogbook from "components/modal/form/EntryLogbook";
 import moment from "moment";
 
 const Dashboard = (props) => {
+  const { sessionData } = props;
   const [editPopup, setEditPopup] = useState(false);
   const toggleEditPopup = () => setEditPopup(!editPopup);
 
@@ -38,10 +39,10 @@ const Dashboard = (props) => {
         <Col md="8">
           <Card tag={Col} className="shadow p-2 d-flex" style={{ gap: "4px" }}>
             <h4 className="fontweight-normal">Hello,</h4>
-            <h3>Daniel Emerald Sumarly</h3>
+            <h3>{sessionData.user.Name}</h3>
             <span style={{ color: "#B9B9C3" }}>
-              <CustomBadge type={"SUCCESS"} content="INTERN" /> —
-              daniel.sumarly@binus.ac.id
+              <CustomBadge type="success" content="INTERN" /> —
+              {sessionData.user.UserPrincipalName}
             </span>
           </Card>
           <Card tag={Col} className="shadow p-2 d-flex" style={{ gap: "4px" }}>

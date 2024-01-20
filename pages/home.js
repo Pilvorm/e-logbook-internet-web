@@ -4,19 +4,13 @@ import { wrapper } from "redux/store";
 import VerticalLayout from "src/@core/layouts/VerticalLayout";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
-import { API_USER_URL } from "constant";
 import { getHeaders } from "helpers/utils";
 import { storeUserRoles } from "redux/actions/auth";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
 import Dashboard from "components/Dashboard/Dashboard";
-import DashboardChart from "components/Dashboard/DashboardChart";
-import DashboardComplaint from "components/Dashboard/DashboardComplaint";
 import { useRouter } from "next/router";
 import useMobileDetector from "components/useMobileDetector";
-import DashboardAccident from "components/Dashboard/DashboardAccident";
-import DashboardNearmiss from "components/Dashboard/DashboardNearmiss";
-import DashboardVictim from "components/Dashboard/DashboardVictim";
 import {
   getAuthUser,
   getModule,
@@ -52,12 +46,14 @@ const Home = ({ userRoles, query, roles, sessionData }) => {
   }, [dispatch]);
 
   const { data: session } = useSession();
-  console.log(session);
+  // console.log("SESSION");
+  // console.log(session);
+  // console.log(sessionData);
 
   return (
     <>
       <div className="mt-3">
-        <Dashboard />
+        <Dashboard sessionData={sessionData}/>
         <div className="mt-1"></div>
       </div>
     </>
@@ -77,46 +73,46 @@ export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
     const sessionData = await getSession(ctx);
 
-    // if (!sessionData) {
-    //   return {
-    //     redirect: {
-    //       destination: "/auth",
-    //       permanent: false,
-    //     },
-    //   };
-    // }
+    if (!sessionData) {
+      return {
+        redirect: {
+          destination: "/auth",
+          permanent: false,
+        },
+      };
+    }
 
-    // let temp = [];
-    // try {
-    //   if (sessionData) {
-    //     if (sessionData.user.guest) {
-    //       temp.push("INTERN");
-    //     } else {
-    //       const response = await getRoleUser(
-    //         sessionData.user.UserPrincipalName.replace("@", "%40")
-    //       );
-    //       console.log("step 2", response);
-    //       if (response.data != false) {
-    //         response.data.map(async (item) => {
-    //           return temp.push(item.roleCode); // multi roles
-    //         });
-    //       } else {
-    //         return (temp = response.data[0].roleCode);
-    //       }
-    //     }
-    //     store.dispatch(storeUserRoles(temp));
-    //     // if (typeof window !== "undefined") {
-    //     //   localStorage.setItem("tes", JSON.stringify(["tes", "ok"]))
-    //     // }
-    //   }
-    // } catch (err) {}
-    // console.log(temp, "temp");
+    let temp = [];
+    try {
+      if (sessionData) {
+        if (sessionData.user.guest) {
+          temp.push("INTERN");
+        } else {
+          const response = await getRoleUser(
+            sessionData.user.UserPrincipalName.replace("@", "%40")
+          );
+          console.log("step 2", response);
+          if (response.data != false) {
+            response.data.map(async (item) => {
+              return temp.push(item.roleCode); // multi roles
+            });
+          } else {
+            return (temp = response.data[0].roleCode);
+          }
+        }
+        store.dispatch(storeUserRoles(temp));
+        // if (typeof window !== "undefined") {
+        //   localStorage.setItem("tes", JSON.stringify(["tes", "ok"]))
+        // }
+      }
+    } catch (err) {}
+    console.log(temp, "temp");
 
     return {
       props: {
         userRoles: sessionData,
         query: ctx.query,
-        // roles: temp,
+        roles: temp,
         sessionData,
       },
     };

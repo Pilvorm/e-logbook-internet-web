@@ -202,7 +202,7 @@ export const API_GLOBAL_COMPANY_URL =
 export const API_MASTER =
   "https://goshawk-trusty-vertically.ngrok-free.app/api";
 
-export const API_LOGBOOK = "https://a8ad-101-128-112-109.ngrok-free.app/api/InternshipLogbookLogbook";
+export const API_LOGBOOK = "https://aa6e-101-128-112-109.ngrok-free.app/api/InternshipLogbookLogbook";
 
 export const API_USER_PROFILE =
   "http://kf-asd-userprofile-development-kf-asd-apiglobal-dev.apps.alpha.kalbe.co.id/api/UserProfile";

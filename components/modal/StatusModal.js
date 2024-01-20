@@ -1,10 +1,6 @@
 import { useState } from "react";
 import {
   Button,
-  CustomInput,
-  FormGroup,
-  Input,
-  Label,
   Modal,
   ModalBody,
   ModalFooter,
@@ -12,31 +8,8 @@ import {
 } from "reactstrap";
 
 const StatusModal = ({ visible, toggle, status }) => {
-  function formatApprovalString(inputString) {
-    if (
-      inputString.includes("Waiting for") &&
-      inputString.includes("approval")
-    ) {
-      const trimmedString = inputString
-        .replace("Waiting for ", "")
-        .replace("’s approval", "");
 
-      // Split the remaining string by '/'
-      const names = trimmedString.split("/");
-
-      // Create a new HTML string with line break elements
-      const formattedString = `Waiting for approval:<br>${names
-        .map((name) => `- ${name.trim()}`)
-        .join("<br>")}`;
-
-      return formattedString;
-    }
-
-    return inputString;
-    // Remove "Waiting for" and "’s approval" parts
-  }
-
-  const formattedStatus = formatApprovalString(status);
+  const formattedStatus = status;
 
   return (
     <Modal
