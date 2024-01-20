@@ -42,3 +42,34 @@ export const createLogbookData = (data) => async (dispatch) => {
     return error.response;
   }
 };
+
+export const submitLogbook =
+  (role, upn, name, email, id) => async (dispatch) => {
+    const header = getHeaders(store.getState().authReducers.token);
+    const cstmHeaders = {
+      "CSTM-ROLE": role,
+      "CSTM-UPN": upn,
+      "CSTM-NAME": name,
+      "CSTM-EMAIL": email,
+    };
+
+    try {
+      const response = await axios({
+        url: `${API_LOGBOOK}/Submit/${id}`,
+        method: "PUT",
+        headers: {
+          ...header,
+          ...cstmHeaders,
+        },
+        data: {
+          alasan: note,
+        },
+      });
+
+      return response;
+    } catch (error) {
+      console.log(error.response);
+      console.error(error.response);
+      return error;
+    }
+  };

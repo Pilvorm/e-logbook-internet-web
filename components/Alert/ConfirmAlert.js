@@ -35,11 +35,22 @@ const ConfirmAlert = ({
           {description}
         </div>
         <div className="row p-1 d-flex justify-content-end">
+        <Button.Ripple
+            id="yesConfirm"
+            color="success"
+            className="btn-next"
+            onClick={onConfirm}
+          >
+            <span className="align-middle d-sm-inline-block d-none">
+              {newButton ? "Yes" : "OK"}
+            </span>
+          </Button.Ripple>
+
           {newButton && (
             <Button.Ripple
               id="noConfirm"
               color="success"
-              className="btn-next"
+              className="btn-next mr-2 ml-1"
               onClick={onClose}
             >
               <span className="align-middle d-sm-inline-block d-none">
@@ -47,16 +58,6 @@ const ConfirmAlert = ({
               </span>
             </Button.Ripple>
           )}
-          <Button.Ripple
-            id="yesConfirm"
-            color="success"
-            className="btn-next mr-2 ml-1"
-            onClick={onConfirm}
-          >
-            <span className="align-middle d-sm-inline-block d-none">
-              {newButton ? "Yes" : "OK"}
-            </span>
-          </Button.Ripple>
         </div>
       </div>
     </React.Fragment>

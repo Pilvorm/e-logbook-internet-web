@@ -22,7 +22,7 @@ import EntryLogbook from "components/modal/form/EntryLogbook";
 import { FloatingHeader, useOnScreen } from "components/Header/FloatingHeader";
 
 import { getAllMasterUserInternal } from "redux/actions/master/userInternal";
-import { getLogbookData } from "redux/actions/logbook";
+import { getLogbookData, submitLogbook } from "redux/actions/logbook";
 import { getPermissionComponentByRoles } from "helpers/getPermission";
 
 import moment from "moment";
@@ -51,9 +51,10 @@ const EntryRow = ({
   const holidayName = holidayDates[holidayIndex]?.holiday_name ?? "";
   const blockEntry = isWeekend || isHoliday ? true : false;
   const currEntry = logbookDays[index];
+  const ogIdx = currEntry.originalIndex ?? "";
 
   return (
-    <tr key={index}>
+    <tr key={jsDate}>
       <td>{index + 1}.</td>
       <td style={{ color: blockEntry && "#CAC7D1" }}>
         {jsDate.format("ddd, DD MMM YYYY")}
@@ -68,9 +69,19 @@ const EntryRow = ({
           ? "OFF"
           : `${currEntry?.activity ?? "-"}`}
       </td>
-      <td>{blockEntry ? "" : `${currEntry?.workType ?? "-"}`}</td>
-      <td style={{ color: "#46A583" }}>
-        {blockEntry ? "" : "Approved by ..."}
+      <td style={{ width: "2%" }}>
+        {blockEntry ? "" : `${currEntry?.workType ?? "-"}`}
+      </td>
+      <td
+        style={{
+          width: "15%",
+          color: currEntry?.status == null ? "#FF5B5C" : "#46A583",
+        }}
+      >
+        {blockEntry || !ogIdx
+          ? ""
+          : currEntry?.status ??
+            `Waiting for ${sessionData.user.MentorName}'s Approval`}
       </td>
       <td>
         {blockEntry || isFutureDate ? (
@@ -78,7 +89,6 @@ const EntryRow = ({
         ) : (
           <Button.Ripple
             outline={!currEntry?.activity}
-            type="submit"
             color="primary"
             className="btn-next"
             onClick={toggleEditPopup}
@@ -173,11 +183,11 @@ const Logbook = (props) => {
     if (dataLogbook) {
       let index = 0;
       let temp = initLogbookDays();
-      let logbookDaysLength = dataLogbook.data[0]?.logbookDays.length;
+      let logbookDaysLength = dataLogbook?.logbookDays.length;
       for (var i = 0; i < logbookDaysLength; i++) {
-        index = moment(dataLogbook.data[0].logbookDays[i].date).format("D") - 1;
+        index = moment(dataLogbook?.logbookDays[i].date).format("D") - 1;
         temp[index] = {
-          ...dataLogbook.data[0].logbookDays[i],
+          ...dataLogbook?.logbookDays[i],
           originalIndex: i,
         };
       }
@@ -205,6 +215,54 @@ const Logbook = (props) => {
     });
   };
 
+  const onSubmitHandler = async () => {
+    let role = "";
+    const upn = sessionData?.user?.UserPrincipalName;
+    const name = sessionData?.user?.Name;
+    const email = sessionData?.user?.Email;
+    try {
+      role = JSON.parse(localStorage.getItem("userRoles"))[0];
+    } catch (e) {
+      console.error(e);
+      role = "";
+    }
+
+    const id = dataLogbook?.id;
+
+    confirmAlertNotification(
+      "Confirmation",
+      `Are you sure to submit this logbook?`,
+      () => {
+        dispatch(submitLogbook(role, upn, name, email, id))
+          .then((res) => {
+            if (res.status >= 200 && res.status < 300) {
+              successAlertNotification(
+                "Success",
+                "Logbook Submitted Succesfully"
+              );
+              router.push({
+                pathname: router.pathname,
+                query: {
+                  ...query,
+                  month: query.month,
+                },
+              });
+            } else {
+              errorAlertNotification(
+                "Error",
+                "Something went wrong, please try again later."
+              );
+            }
+            return res;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      },
+      () => {}
+    );
+  };
+
   return (
     <div>
       <BreadCrumbs breadCrumbParent="Internship" breadCrumbActive="Logbook" />
@@ -221,7 +279,7 @@ const Logbook = (props) => {
               school={`${sessionData.user.SchoolName}`}
               faculty={`${sessionData.user.Faculty}`}
               month={`${monthQuery}`}
-              status={dataLogbook.data[0]?.status.toUpperCase()}
+              status={dataLogbook?.status}
               workingDays="14 WFH / 8 WFO"
               pay="Rp 1.920.000"
             />
@@ -264,19 +322,21 @@ const Logbook = (props) => {
               Export to PDF
             </span>
           </Button.Ripple>
-          <Button.Ripple
-            id="saveBtn"
-            className="ml-1"
-            color="primary"
-            onClick={() => {
-              onSaveHandler(transformAndValidation(formik.values));
-            }}
-          >
-            <Play size={18} />
-            <span className="align-middle ml-1 d-sm-inline-block d-none">
-              Submit
-            </span>
-          </Button.Ripple>
+          {(dataLogbook?.status.includes("revision") ||
+            dataLogbook?.status.includes("revision")) && (
+            <Button.Ripple
+              id="saveBtn"
+              className="ml-1"
+              color="primary"
+              onClick={() => onSubmitHandler()}
+              // disabled
+            >
+              <Play size={18} />
+              <span className="align-middle ml-1 d-sm-inline-block d-none">
+                Submit
+              </span>
+            </Button.Ripple>
+          )}
         </div>
       </div>
       <Table responsive className="border">
@@ -298,7 +358,7 @@ const Logbook = (props) => {
                 index={index}
                 monthQuery={monthQuery}
                 sessionData={sessionData}
-                dataLogbook={dataLogbook.data[0]} //currentDoc
+                dataLogbook={dataLogbook} //currentDoc
                 logbookDays={logbookDays}
                 holidayDates={holidayDates}
               />
@@ -378,7 +438,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
         query,
         sessionData,
         token,
-        dataLogbook,
+        dataLogbook: dataLogbook.data[0],
         holidayDates,
       },
     };

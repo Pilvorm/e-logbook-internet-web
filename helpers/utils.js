@@ -108,7 +108,7 @@ export const getHeaders = (token) => {
     "Access-Control-Allow-Origin": "*",
     app_id: process.env.NEXT_PUBLIC_APP_ID ?? "",
     app_key: process.env.NEXT_PUBLIC_APP_KEY ?? "",
-    applicationCode: "HSSEONLINE",
+    applicationCode: "ELOGBOOK",
   };
 
   return header;

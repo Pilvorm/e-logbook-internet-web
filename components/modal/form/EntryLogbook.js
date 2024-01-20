@@ -43,7 +43,7 @@ const EntryLogbook = ({
   const validationSchema = yup
     .object({
       workType: dayOff
-        ? yup.string().optional
+        ? yup.string().optional()
         : yup.string().required("Work Type is required"),
       activity: yup.string().required("Activity is required"),
     })
@@ -79,21 +79,26 @@ const EntryLogbook = ({
       id: dataLogbook.id,
       logbookDays: [
         ...dataLogbook.logbookDays, //spread current docs logbookDays
-        // !ogIdx && {
-        //   logbookId: dataLogbook.id,
-        //   date: jsDate.format("YYYY-MM-DD"),
-        //   workType,
-        //   activity,
-        // },
       ],
     };
 
     if (ogIdx) {
+      //Edit Existing Entry
       editData.logbookDays[ogIdx] = {
+        logbookId: dataLogbook.id,
+        id: dataLogbook.logbookDays[ogIdx].id,
         date: jsDate.format("YYYY-MM-DD"),
         workType,
         activity,
       };
+    } else {
+      //Insert New Entry
+      editData.logbookDays.push({
+        logbookId: dataLogbook.id,
+        date: jsDate.format("YYYY-MM-DD"),
+        workType,
+        activity,
+      });
     }
 
     !dataLogbook
@@ -102,56 +107,63 @@ const EntryLogbook = ({
 
     // console.log(bodyData);
 
-    // dispatch(
-    //   //if no document avail, create data. If avail edit it
-    //   !dataLogbook ? createLogbookData(bodyData) : createLogbookData(editData)
-    // ).then((res) => {
-    //   if (res.status === HTTP_CODE.OK) {
-    //     actions.setSubmitting(false);
-    //     successAlertNotification("Success", "Data Saved Successfully");
-    //     router.push({
-    //       pathname: router.pathname,
-    //       query: {
-    //         ...router.query,
-    //         month: monthQuery,
-    //       },
-    //     });
-    //   } else {
-    //     actions.setSubmitting(false);
-    //     console.error(res);
-    //     let errorMessages = [];
+    dispatch(
+      //if no document avail, create data. If avail edit it
+      !dataLogbook ? createLogbookData(bodyData) : createLogbookData(editData)
+    ).then((res) => {
+      if (res.status === HTTP_CODE.OK) {
+        actions.setSubmitting(false);
+        successAlertNotification("Success", "Data Saved Successfully");
+        router.push({
+          pathname: router.pathname,
+          query: {
+            ...router.query,
+            month: monthQuery,
+          },
+        });
+      } else {
+        actions.setSubmitting(false);
+        console.error(res);
+        let errorMessages = [];
 
-    //     try {
-    //       errorMessages = Object.entries(res.data.errors).flatMap(
-    //         ([field, messages]) => {
-    //           return messages.map((message) => ({ field, message }));
-    //         }
-    //       );
-    //     } catch (error) {
-    //       // Handle the error appropriately
-    //       errorMessages = [
-    //         {
-    //           field: "Error",
-    //           message: "Something went wrong, please try again later.",
-    //         },
-    //       ];
-    //     }
+        try {
+          errorMessages = Object.entries(res.data.errors).flatMap(
+            ([field, messages]) => {
+              return messages.map((message) => ({ field, message }));
+            }
+          );
+        } catch (error) {
+          // Handle the error appropriately
+          errorMessages = [
+            {
+              field: "Error",
+              message: "Something went wrong, please try again later.",
+            },
+          ];
+        }
 
-    //     const title = "Error";
-    //     const message =
-    //       errorMessages.length > 0
-    //         ? errorMessages
-    //             .map(({ field, message }) => `${field}: ${message}`)
-    //             .join("\n")
-    //         : "";
+        const title = "Error";
+        const message =
+          errorMessages.length > 0
+            ? errorMessages
+                .map(({ field, message }) => `${field}: ${message}`)
+                .join("\n")
+            : "";
 
-    //     errorAlertNotification(title, message);
-    //   }
-    // });
+        errorAlertNotification(title, message);
+      }
+    });
   };
 
   return (
-    <Modal isOpen={visible} toggle={toggle} size="lg">
+    <Modal
+      isOpen={visible}
+      toggle={() => {
+        toggle;
+        setDayOff(false);
+      }}
+      size="lg"
+    >
       <ModalHeader className="text-secondary bg-light" toggle={toggle}>
         Entry Logbook
       </ModalHeader>
@@ -235,8 +247,6 @@ const EntryLogbook = ({
                 name="dayOffBtn"
                 onClick={() => {
                   resetForm();
-                  // setFieldValue("workType", "");
-                  // setFieldValue("activity", "");
                   setDayOff(!dayOff);
                 }}
               >
