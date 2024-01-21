@@ -79,16 +79,14 @@ const Dashboard = (props) => {
     moment().format("MMMM YYYY")
   );
 
-  const [currentDayEntry, setCurrentDayEntry] = useState({
-    ...logbookDays[moment().format("D") - 1],
-  });
+  const [currentDayEntry, setCurrentDayEntry] = useState(
+    logbookDays[moment().format("D") - 1]
+  );
 
-  // console.log("HMMM");
-  // console.log(dataLogbook);
   // console.log("OK");
   // console.log(currentDayEntry);
 
-  console.log(sessionData);
+  // console.log(sessionData);
 
   useEffect(() => {
     let timer;
@@ -155,17 +153,17 @@ const Dashboard = (props) => {
             <span className="mt-3" style={{ color: "#B9B9C3" }}>
               Today's activity
             </span>
-            <span className="mt-2 mb-1">{currentDayEntry.activity ?? "-"}</span>
+            <span className="mt-2 mb-1">{logbookDays[moment().format("D") - 1].activity ?? "-"}</span>
             <span className="mb-3">
               <CustomBadge
                 type={"INFO"}
-                content={`${currentDayEntry.workType ?? ""}`}
+                content={`${logbookDays[moment().format("D") - 1].workType ?? ""}`}
               />
             </span>
             <Button.Ripple
-              // outline={!logbookDays[index]?.activity}
+              outline={!logbookDays[moment().format("D") - 1]?.activity}
               type="submit"
-              color="warning"
+              color="primary"
               className="btn-next w"
               onClick={toggleEditPopup}
             >

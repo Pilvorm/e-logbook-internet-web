@@ -298,7 +298,8 @@ const Logbook = (props) => {
               faculty={`${sessionData.user.Faculty}`}
               month={`${monthQuery}`}
               status={dataLogbook?.data[0]?.status ?? "Waiting for entry"}
-              workingDays="14 WFH / 8 WFO"
+              wfhCount={dataLogbook?.data[0]?.wfhCount ?? 0}
+              wfoCount={dataLogbook?.data[0]?.wfoCount ?? 0}
               pay={dataLogbook?.data[0]?.allowance}
             />
           </div>

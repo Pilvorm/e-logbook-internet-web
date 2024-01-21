@@ -13,7 +13,8 @@ export const InternDetailCard = ({
   faculty,
   month,
   status,
-  workingDays,
+  wfhCount,
+  wfoCount,
   pay,
 }) => {
   const [statusModal, setStatusModal] = useState(false);
@@ -60,7 +61,7 @@ export const InternDetailCard = ({
         <div className="d-flex flex-column mt-2">
           <span>Working Days</span>
           <p className="">
-            <strong>{workingDays}</strong>
+            <strong>{wfhCount} WFH / {wfoCount} WFO</strong>
           </p>
         </div>
         {/* <div className="d-flex flex-column mt-2">
