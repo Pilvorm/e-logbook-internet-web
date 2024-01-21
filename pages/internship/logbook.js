@@ -22,11 +22,12 @@ import EntryLogbook from "components/modal/form/EntryLogbook";
 import { FloatingHeader, useOnScreen } from "components/Header/FloatingHeader";
 
 import { getAllMasterUserInternal } from "redux/actions/master/userInternal";
-import { getLogbookData, submitLogbook } from "redux/actions/logbook";
+import {
+  GenerateLogbookPDF,
+  getLogbookData,
+  submitLogbook,
+} from "redux/actions/logbook";
 import { getPermissionComponentByRoles } from "helpers/getPermission";
-
-import FileSaver from "file-saver";
-import { getFiles } from "helpers/shared";
 
 import moment from "moment";
 
@@ -206,6 +207,9 @@ const Logbook = (props) => {
     fillLogbookDays();
   }, []);
 
+  console.log("HUH");
+  console.log(sessionData);
+
   console.log("DATA LOGBOOK");
   console.log(dataLogbook);
 
@@ -272,15 +276,9 @@ const Logbook = (props) => {
   };
 
   const handleDownload = async (dataLogbook) => {
-    try {
-      const response = await getFiles(dataLogbook);
-      console.log("RESPONSE FILE")
-      // console.log(response);
-      return FileSaver.saveAs(response.data, `Logbook ${sessionData.user.Name} ${monthQuery}`);
-    } catch (error) {
-      console.log(error);
-      errorAlertNotification("Error", "Failed to download file");
-    }
+    const name = sessionData.user.Name;
+    const month = monthQuery;
+    await dispatch(GenerateLogbookPDF(name, month, dataLogbook));
   };
 
   return (
@@ -299,7 +297,7 @@ const Logbook = (props) => {
               school={`${sessionData.user.SchoolName}`}
               faculty={`${sessionData.user.Faculty}`}
               month={`${monthQuery}`}
-              status={dataLogbook?.data[0]?.status}
+              status={dataLogbook?.data[0]?.status ?? "Waiting for entry"}
               workingDays="14 WFH / 8 WFO"
               pay={dataLogbook?.data[0]?.allowance}
             />
