@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_FILE, API_FILES_URL, API_MASTER } from "constant";
+import { API_LOGBOOK, API_FILE, API_FILES_URL, API_MASTER } from "constant";
 import { getHeaders } from "./utils";
 import { store } from "redux/store";
 
@@ -22,11 +22,37 @@ export const getFileHelper = (token, attachmentFileId) => {
     .catch((error) => console.log(error));
 };
 
-export const uploadSingleFiles = async (data, moduleCode) => {
+export const uploadSingleFiles = async (role, upn, name, email, data) => {
+  const header = getHeaders(store.getState().authReducers.token);
+  const cstmHeaders = {
+    "CSTM-ROLE": role,
+    "CSTM-UPN": upn,
+    "CSTM-NAME": name,
+    "CSTM-EMAIL": email,
+  };
+
+  try {
+    const response = await axios({
+      url: `${API_LOGBOOK}/UploadSign`,
+      method: "POST",
+      headers: {
+        ...header,
+        ...cstmHeaders,
+      },
+      data,
+    });
+
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const getFiles = async (data) => {
   const header = getHeaders(store.getState().authReducers.token);
   try {
     const response = await axios({
-      url: `${API_FILE}/api/Files/upload/single?applicationCode=HSSE&ModuleCode=${moduleCode}`,
+      url: `${API_LOGBOOK}/GeneratePDF`,
       method: "POST",
       headers: { ...header },
       data,
@@ -38,39 +64,6 @@ export const uploadSingleFiles = async (data, moduleCode) => {
   }
 };
 
-export const uploadMultipleFiles = async (data, moduleCode) => {
-  const header = getHeaders(store.getState().authReducers.token);
-  try {
-    const response = await axios({
-      // url: API_FILE + "/upload/single?applicationCode=BSC&ModuleCode=PICAPA/SIRA",
-      url: `${API_FILE}/api/Files/upload?applicationCode=HSSE&ModuleCode=${moduleCode}`,
-      method: "POST",
-      headers: { ...header },
-      data,
-    });
-
-    return response;
-  } catch (error) {
-    return error.response;
-  }
-};
-
-export const getFiles = async (data, moduleCode) => {
-  const header = getHeaders(store.getState().authReducers.token);
-  try {
-    const response = await axios({
-      // url: API_FILE + "/upload/single?applicationCode=BSC&ModuleCode=PICAPA/SIRA",
-      url: `${API_FILE}/api/Files/upload?applicationCode=ESelection&ModuleCode=${moduleCode}`,
-      method: "POST",
-      headers: { ...header },
-      data,
-    });
-
-    return response;
-  } catch (error) {
-    return error.response;
-  }
-};
 export const uploadFile = (data, moduleCode) => async (dispatch) => {
   const header = getHeaders(store.getState().authReducers.token);
   try {
@@ -125,26 +118,4 @@ export const transformYupErrorsIntoObject = (errors) => {
   });
 
   return validationErrors;
-};
-
-export const searchP3KItem = (searchQuery) => {
-  const header = getHeaders(store.getState().authReducers.token);
-
-  console.log(header);
-
-  try {
-    // const response = await axios.get(`${API_MASTER}/api/MasterP3kItem`, {
-    //   headers: {
-    //     ...header,
-    //     "X-PAGINATION": true,
-    //     "X-PAGE": 1,
-    //     "X-PAGESIZE": 5,
-    //     "X-SEARCH": `*${searchQuery}*`,
-    //   },
-    // });
-    // return response.data;
-  } catch (error) {
-    console.error(error);
-    return error.response;
-  }
 };

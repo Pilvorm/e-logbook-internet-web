@@ -25,6 +25,9 @@ import { getAllMasterUserInternal } from "redux/actions/master/userInternal";
 import { getLogbookData, submitLogbook } from "redux/actions/logbook";
 import { getPermissionComponentByRoles } from "helpers/getPermission";
 
+import FileSaver from "file-saver";
+import { getFiles } from "helpers/shared";
+
 import moment from "moment";
 
 const EntryRow = ({
@@ -78,13 +81,16 @@ const EntryRow = ({
           color: currEntry?.status == null ? "#FF5B5C" : "#46A583",
         }}
       >
-        {blockEntry || !ogIdx
+        {blockEntry || !currEntry?.activity
           ? ""
-          : currEntry?.status ??
-            `Waiting for ${sessionData.user.MentorName}'s Approval`}
+          : currEntry?.status == null
+          ? `Waiting for ${sessionData.user.MentorName}'s Approval`
+          : currEntry?.status}
       </td>
       <td>
-        {blockEntry || isFutureDate ? (
+        {blockEntry ||
+        isFutureDate ||
+        dataLogbook?.status.includes("approval") ? (
           ""
         ) : (
           <Button.Ripple
@@ -183,11 +189,12 @@ const Logbook = (props) => {
     if (dataLogbook) {
       let index = 0;
       let temp = initLogbookDays();
-      let logbookDaysLength = dataLogbook?.logbookDays.length;
+      let logbookDaysLength = dataLogbook.data[0]?.logbookDays.length;
       for (var i = 0; i < logbookDaysLength; i++) {
-        index = moment(dataLogbook?.logbookDays[i].date).format("D") - 1;
+        index =
+          moment(dataLogbook.data[0]?.logbookDays[i].date).format("D") - 1;
         temp[index] = {
-          ...dataLogbook?.logbookDays[i],
+          ...dataLogbook.data[0]?.logbookDays[i],
           originalIndex: i,
         };
       }
@@ -220,6 +227,7 @@ const Logbook = (props) => {
     const upn = sessionData?.user?.UserPrincipalName;
     const name = sessionData?.user?.Name;
     const email = sessionData?.user?.Email;
+    const education = sessionData?.user?.Education;
     try {
       role = JSON.parse(localStorage.getItem("userRoles"))[0];
     } catch (e) {
@@ -227,18 +235,18 @@ const Logbook = (props) => {
       role = "";
     }
 
-    const id = dataLogbook?.id;
+    const dataToSubmit = dataLogbook.data[0];
 
     confirmAlertNotification(
       "Confirmation",
       `Are you sure to submit this logbook?`,
       () => {
-        dispatch(submitLogbook(role, upn, name, email, id))
+        dispatch(submitLogbook(role, upn, name, email, education, dataToSubmit))
           .then((res) => {
             if (res.status >= 200 && res.status < 300) {
               successAlertNotification(
                 "Success",
-                "Logbook Submitted Succesfully"
+                "Logbook submitted succesfully"
               );
               router.push({
                 pathname: router.pathname,
@@ -263,6 +271,18 @@ const Logbook = (props) => {
     );
   };
 
+  const handleDownload = async (dataLogbook) => {
+    try {
+      const response = await getFiles(dataLogbook);
+      console.log("RESPONSE FILE")
+      // console.log(response);
+      return FileSaver.saveAs(response.data, `Logbook ${sessionData.user.Name} ${monthQuery}`);
+    } catch (error) {
+      console.log(error);
+      errorAlertNotification("Error", "Failed to download file");
+    }
+  };
+
   return (
     <div>
       <BreadCrumbs breadCrumbParent="Internship" breadCrumbActive="Logbook" />
@@ -279,9 +299,9 @@ const Logbook = (props) => {
               school={`${sessionData.user.SchoolName}`}
               faculty={`${sessionData.user.Faculty}`}
               month={`${monthQuery}`}
-              status={dataLogbook?.status}
+              status={dataLogbook?.data[0]?.status}
               workingDays="14 WFH / 8 WFO"
-              pay="Rp 1.920.000"
+              pay={dataLogbook?.data[0]?.allowance}
             />
           </div>
         </div>
@@ -314,7 +334,7 @@ const Logbook = (props) => {
             className="ml-1"
             color="warning"
             onClick={() => {
-              onSaveHandler(transformAndValidation(formik.values));
+              handleDownload(dataLogbook.data[0]);
             }}
           >
             <Download size={18} />
@@ -322,8 +342,8 @@ const Logbook = (props) => {
               Export to PDF
             </span>
           </Button.Ripple>
-          {(dataLogbook?.status.includes("revision") ||
-            dataLogbook?.status.includes("revision")) && (
+          {(dataLogbook.data[0]?.status.includes("Draft") ||
+            dataLogbook.data[0]?.status.includes("revision")) && (
             <Button.Ripple
               id="saveBtn"
               className="ml-1"
@@ -358,7 +378,7 @@ const Logbook = (props) => {
                 index={index}
                 monthQuery={monthQuery}
                 sessionData={sessionData}
-                dataLogbook={dataLogbook} //currentDoc
+                dataLogbook={dataLogbook.data[0]} //currentDoc
                 logbookDays={logbookDays}
                 holidayDates={holidayDates}
               />
@@ -371,7 +391,7 @@ const Logbook = (props) => {
           md="9"
           sm="12"
         >
-          <span>Signed</span>
+          {/* <span>Signed</span> */}
         </Col>
       </Row>
     </div>
@@ -387,7 +407,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     const { query } = ctx;
     const sessionData = await getSession(ctx);
 
-    if (!sessionData) {
+    if (!sessionData || sessionData.user.Status === "Unconfirmed") {
       return {
         redirect: {
           destination: `/auth?url=${ctx.resolvedUrl}`,
@@ -438,7 +458,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
         query,
         sessionData,
         token,
-        dataLogbook: dataLogbook.data[0],
+        dataLogbook: dataLogbook,
         holidayDates,
       },
     };

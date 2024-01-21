@@ -1,5 +1,6 @@
 import React from "react";
 import { X } from "react-feather";
+import { Button } from "reactstrap";
 
 const SuccessNotification = ({
   onConfirm,
@@ -36,13 +37,13 @@ const SuccessNotification = ({
           {description}
         </div>
         <div className="row p-1 d-flex justify-content-end">
-          <div
-            style={{ height: 32, cursor: "pointer" }}
+          <Button.Ripple
+            color="success"
+            className="btn-next mr-2"
             onClick={onConfirm}
-            className={`bg-${color} px-2 rounded text-white d-flex justify-content-center align-items-center mr-2 c-button`}
           >
-            OK
-          </div>
+            <span className="align-middle d-sm-inline-block d-none">OK</span>
+          </Button.Ripple>
         </div>
       </div>
     </React.Fragment>

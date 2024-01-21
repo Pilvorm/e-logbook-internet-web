@@ -44,26 +44,25 @@ export const createLogbookData = (data) => async (dispatch) => {
 };
 
 export const submitLogbook =
-  (role, upn, name, email, id) => async (dispatch) => {
+  (role, upn, name, email, education, data) => async (dispatch) => {
     const header = getHeaders(store.getState().authReducers.token);
     const cstmHeaders = {
       "CSTM-ROLE": role,
       "CSTM-UPN": upn,
       "CSTM-NAME": name,
       "CSTM-EMAIL": email,
+      "CSTM-EDUCATION": education
     };
 
     try {
       const response = await axios({
-        url: `${API_LOGBOOK}/Submit/${id}`,
-        method: "PUT",
+        url: `${API_LOGBOOK}/Submit/`,
+        method: "POST",
         headers: {
           ...header,
           ...cstmHeaders,
         },
-        data: {
-          alasan: note,
-        },
+        data
       });
 
       return response;

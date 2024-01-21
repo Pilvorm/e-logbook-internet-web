@@ -85,6 +85,7 @@ export const InternDetailCard = ({
             visible={statusModal}
             toggle={toggleStatusModal}
             status={status}
+            pay={pay}
           />
         </Button.Ripple>
         {/* <div className="d-flex flex-column mt-2">

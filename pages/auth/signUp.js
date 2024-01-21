@@ -1,4 +1,9 @@
-import { EDUCATION_DATA, MONTH_OPTIONS, COMPANY_DATA, DEPARTMENT_DATA } from "constant";
+import {
+  EDUCATION_DATA,
+  MONTH_OPTIONS,
+  COMPANY_DATA,
+  DEPARTMENT_DATA,
+} from "constant";
 import Link from "next/link";
 import Image from "next/image";
 import InputPasswordToggle from "src/@core/components/input-password-toggle";
@@ -59,6 +64,7 @@ import {
 } from "redux/actions/master/userInternal";
 
 import { wrapper } from "redux/store";
+import moment from "moment";
 
 const LoginPage = (props) => {
   const {
@@ -84,7 +90,13 @@ const LoginPage = (props) => {
   const [selectedEducation, setSelectedEducation] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState([]);
   const [selectedFaculty, setSelectedFaculty] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState({
+    value: "01",
+    name: "PT XYZ Tbk.",
+    label: "PT XYZ Tbk.",
+    companyCode: "01",
+    companyName: "PT XYZ Tbk.",
+  });
   const [selectedDepartment, setSelectedDepartment] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState([]);
@@ -201,8 +213,8 @@ const LoginPage = (props) => {
       dept,
       password,
       status,
-      joinDate,
-      endDate,
+      startDate,
+      // endDate,
       mentorUpn,
       mentorName,
       companyCode,
@@ -223,8 +235,8 @@ const LoginPage = (props) => {
       dept,
       password,
       status,
-      joinDate,
-      endDate,
+      startDate,
+      // endDate,
       mentorUpn,
       mentorName,
       companyCode,
@@ -271,10 +283,11 @@ const LoginPage = (props) => {
       companyName: yup.string().required("Company is required"),
       dept: yup.string().required("Department is required"),
       mentorName: yup.string().required("Mentor is required"),
-      joinDate: yup.date(),
-      endDate: yup
-        .date()
-        .min(yup.ref("joinDate"), "End date can't be before join date"),
+      startDate: yup.string().required("Start date is required"),
+      internshipPeriodMonth: yup.number().required("Period is required"),
+      // endDate: yup
+      //   .date()
+      //   .min(yup.ref("startDate"), "End date can't be before join date"),
     })
     .required();
 
@@ -303,8 +316,8 @@ const LoginPage = (props) => {
         dept: selectedDepartment.departmentName,
         password: password,
         status: "Unconfirmed",
-        joinDate: new Date(),
-        endDate: new Date(),
+        startDate: "",
+        // endDate: new Date(),
         mentorUpn: selectedMentor.userPrincipalName,
         mentorName: selectedMentor.name,
         companyCode: selectedCompany.companyCode,
@@ -445,8 +458,8 @@ const LoginPage = (props) => {
                           </Label>
                           <InputPasswordToggle
                             className="input-group-merge"
-                            id="password"
-                            name="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                           />
@@ -474,9 +487,7 @@ const LoginPage = (props) => {
                     </Form>
                   </div>
                   <div className="auth-footer-btn d-flex flex-column justify-content-center align-items-center my-2">
-                    <p className="m-0">
-                      E-Logbook Version 1.0
-                    </p>
+                    <p className="m-0">E-Logbook Version 1.0</p>
                     <p className="m-0">
                       &#169;{new Date().getFullYear()} - PT XYZ Tbk.
                     </p>
@@ -564,7 +575,7 @@ const LoginPage = (props) => {
                             onChange={(e) => setFullName(e.target.value)}
                             isRequired
                           />
-                          {errors.name && (
+                          {errors.name && touched.name && (
                             <div className="text-danger">{errors.name}</div>
                           )}
                         </FormGroup>
@@ -672,11 +683,13 @@ const LoginPage = (props) => {
                             name="companyName"
                             classNamePrefix="select"
                             cacheOptions
+                            defaultValue={selectedCompany}
                             defaultOptions={COMPANY_DATA}
                             onChange={(e) => {
                               setSelectedCompany(e);
                             }}
-                            placeholder="Search..."
+                            // placeholder="Search..."
+                            // isDisabled
                           />
                           {errors.companyName && touched.companyName && (
                             <div className="text-danger">
@@ -759,27 +772,25 @@ const LoginPage = (props) => {
                             <FormGroup tag={Col} md="12">
                               <FormikDatePicker
                                 label="Internship Start Date"
-                                name="joinDate"
+                                name="startDate"
+                                withFormGroup={false}
+                                value={values.startDate}
+                                onChange={handleChange("startDate")}
                                 isRequired
                               />
+                              {errors.startDate &&
+                                touched.startDate && (
+                                  <div className="text-danger">
+                                    {errors.startDate}
+                                  </div>
+                                )}
                             </FormGroup>
                           </Col>
                           <Col md="6">
-                            {/* <FormGroup tag={Col} md="12">
-                              <FormikDatePicker
-                                label="Internship End Date"
-                                name="endDate"
-                                isRequired
-                              />
-                              {errors.endDate && (
-                                <div className="text-danger">
-                                  {errors.endDate}
-                                </div>
-                              )}
-                            </FormGroup> */}
                             <FormGroup tag={Col} md="12">
                               <Label className="form-label font-weight-bold">
-                                Internship Period Month <span className="text-danger">*</span>
+                                Internship Period Month{" "}
+                                <span className="text-danger">*</span>
                               </Label>
                               <AsyncSelect
                                 id="internshipPeriodMonth"
@@ -792,11 +803,12 @@ const LoginPage = (props) => {
                                   setSelectedPeriod(e);
                                 }}
                               />
-                              {errors.internshipPeriodMonth && touched.internshipPeriodMonth && (
-                                <div className="text-danger">
-                                  {errors.internshipPeriodMonth}
-                                </div>
-                              )}
+                              {errors.internshipPeriodMonth &&
+                                touched.internshipPeriodMonth && (
+                                  <div className="text-danger">
+                                    {errors.internshipPeriodMonth}
+                                  </div>
+                                )}
                             </FormGroup>
                           </Col>
                         </Row>

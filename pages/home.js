@@ -19,19 +19,20 @@ import {
 } from "helpers/auth";
 import { useSelector } from "react-redux";
 
-const Home = ({ userRoles, query, roles, sessionData }) => {
+import { getLogbookData, submitLogbook } from "redux/actions/logbook";
+
+import moment from "moment";
+
+const Home = ({
+  userRoles,
+  query,
+  roles,
+  sessionData,
+  dataLogbook,
+  holidayDates,
+}) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const isMobileWidth = useMobileDetector();
-  const [moduleMobile, setModuleMobile] = useState([]);
-
-  // useEffect(async () => {
-  //   if (isMobileWidth) {
-  //     const res = await getModuleMobile();
-  //     console.log(res, "<<<<<");
-  //     setModuleMobile(res.data);
-  //   }
-  // }, [isMobileWidth]);
 
   useEffect(() => {
     if (query.url) {
@@ -46,14 +47,75 @@ const Home = ({ userRoles, query, roles, sessionData }) => {
   }, [dispatch]);
 
   const { data: session } = useSession();
-  // console.log("SESSION");
-  // console.log(session);
-  // console.log(sessionData);
+
+  const currentDate = new Date();
+  const [monthQuery, setMonthQuery] = useState(
+    moment(currentDate).format("MMMM YYYY")
+  );
+
+  // Handle Chosen Month Days
+  const setDays = (month) => {
+    var daysInMonth = moment(month, "MMMM YYYY").daysInMonth();
+    var arrDays = [];
+
+    while (daysInMonth) {
+      var current = moment(`${month} ${daysInMonth}`, "MMMM YYYY DD");
+      // if (!(moment(current).day() == 6 || moment(current).day() == 0)) {
+      arrDays.unshift(current);
+      // }
+      daysInMonth--;
+    }
+    return arrDays;
+  };
+
+  const [monthDays, setMonthDays] = useState(setDays(monthQuery));
+  const [daysInMonth, setDaysInMonth] = useState(
+    moment(monthQuery, "MMMM YYYY").daysInMonth()
+  );
+
+  const initLogbookDays = () => {
+    let count = daysInMonth;
+    let arr = [];
+    while (count) {
+      arr.unshift({});
+      count--;
+    }
+    return arr;
+  };
+
+  const [logbookDays, setLogbookDays] = useState(initLogbookDays()); //array with 31 empty objects
+
+  const fillLogbookDays = () => {
+    if (dataLogbook) {
+      let index = 0;
+      let temp = initLogbookDays();
+      let logbookDaysLength = dataLogbook.data[0]?.logbookDays.length;
+      for (var i = 0; i < logbookDaysLength; i++) {
+        index =
+          moment(dataLogbook.data[0]?.logbookDays[i].date).format("D") - 1;
+        temp[index] = {
+          ...dataLogbook.data[0]?.logbookDays[i],
+          originalIndex: i,
+        };
+      }
+      setLogbookDays(temp);
+    }
+  };
+
+  useEffect(() => {
+    fillLogbookDays();
+  }, []);
 
   return (
     <>
       <div className="mt-3">
-        <Dashboard sessionData={sessionData}/>
+        <Dashboard
+          sessionData={sessionData}
+          monthDays={monthDays}
+          dataLogbook={dataLogbook}
+          logbookDays={logbookDays}
+          holidayDates={holidayDates}
+        />
         <div className="mt-1"></div>
       </div>
     </>
@@ -106,7 +168,31 @@ export const getServerSideProps = wrapper.getServerSideProps(
         // }
       }
     } catch (err) {}
-    console.log(temp, "temp");
+
+    const monthFilter = moment().format("MMMM");
+    const yearFilter = moment().format("YYYY");
+
+    await store.dispatch(
+      getLogbookData({
+        "CSTM-UPN": sessionData.user.UserPrincipalName,
+        "X-PAGINATION": true,
+        "X-FILTER": `upn=${sessionData.user.UserPrincipalName}|month=${monthFilter}|year=${yearFilter}`,
+      })
+    );
+
+    const dataLogbook = store.getState().logbookReducers;
+
+    const currentMonth = moment().format("M");
+    const currentYear = moment().format("YYYY");
+
+    const res = await fetch(
+      `https://api-harilibur.vercel.app/api?month=${currentMonth}&year=${currentYear}`
+    );
+    const holidayDates = await res.json().then((data) => {
+      return data.filter((date) => {
+        return date.is_national_holiday;
+      });
+    });
 
     return {
       props: {
@@ -114,6 +200,8 @@ export const getServerSideProps = wrapper.getServerSideProps(
         query: ctx.query,
         roles: temp,
         sessionData,
+        dataLogbook: dataLogbook,
+        holidayDates,
       },
     };
   }

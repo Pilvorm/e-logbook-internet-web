@@ -38,7 +38,9 @@ const EntryLogbook = ({
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const [dayOff, setDayOff] = useState(false);
+  const [dayOff, setDayOff] = useState(
+    currEntry.activity == "OFF" ? true : false
+  );
 
   const validationSchema = yup
     .object({
@@ -52,68 +54,68 @@ const EntryLogbook = ({
   const onSubmit = (values, actions) => {
     const { date, workType, activity } = values;
 
-    const ogIdx = currEntry.originalIndex ?? "";
+    const ogIdx = currEntry.originalIndex >= 0 ? currEntry.originalIndex : "-1";
 
-    let bodyData = {
-      name: sessionData.user.Name,
-      upn: sessionData.user.UserPrincipalName,
-      departmentName: sessionData.user.Dept,
-      schoolCode: sessionData.user.SchoolCode,
-      schoolName: sessionData.user.SchoolName,
-      facultyCode: sessionData.user.FacultyCode,
-      facultyName: sessionData.user.Faculty,
-      month: monthQuery.split(" ")[0],
-      year: monthQuery.split(" ")[1],
-      logbookDays: [
-        {
-          date: jsDate.format("YYYY-MM-DD"),
-          workType,
-          activity,
-        },
-      ],
-    };
-
-    let editData = {
-      ...dataLogbook, //spread current doc
-      docNo: dataLogbook.docNo,
-      id: dataLogbook.id,
-      logbookDays: [
-        ...dataLogbook.logbookDays, //spread current docs logbookDays
-      ],
-    };
-
-    if (ogIdx) {
-      //Edit Existing Entry
-      editData.logbookDays[ogIdx] = {
-        logbookId: dataLogbook.id,
-        id: dataLogbook.logbookDays[ogIdx].id,
-        date: jsDate.format("YYYY-MM-DD"),
-        workType,
-        activity,
+    let bodyData = {};
+    if (!dataLogbook) {
+      bodyData = {
+        name: sessionData.user.Name,
+        upn: sessionData.user.UserPrincipalName,
+        departmentName: sessionData.user.Dept,
+        schoolCode: sessionData.user.SchoolCode,
+        schoolName: sessionData.user.SchoolName,
+        facultyCode: sessionData.user.FacultyCode,
+        facultyName: sessionData.user.Faculty,
+        month: monthQuery.split(" ")[0],
+        year: monthQuery.split(" ")[1],
+        logbookDays: [
+          {
+            date: date.format("YYYY-MM-DD"),
+            workType,
+            activity,
+          },
+        ],
       };
     } else {
-      //Insert New Entry
-      editData.logbookDays.push({
-        logbookId: dataLogbook.id,
-        date: jsDate.format("YYYY-MM-DD"),
-        workType,
-        activity,
-      });
+      bodyData = {
+        ...dataLogbook, //spread current doc
+        docNo: dataLogbook.docNo,
+        id: dataLogbook.id,
+        logbookDays: [
+          ...dataLogbook.logbookDays, //spread current docs logbookDays
+        ],
+      };
+      if (ogIdx >= 0) {
+        //Edit Existing Entry
+        console.log("REPLACE EDIT AT INDEX " + ogIdx)
+        bodyData.logbookDays[ogIdx] = {
+          logbookId: dataLogbook.id,
+          id: dataLogbook.logbookDays[ogIdx].id,
+          date: date.format("YYYY-MM-DD"),
+          workType,
+          activity,
+        };
+      } else {
+        //Insert New Entry
+        console.log("PUSH EDIT")
+        bodyData.logbookDays.push({
+          logbookId: dataLogbook.id,
+          date: date.format("YYYY-MM-DD"),
+          workType,
+          activity,
+        });
+        
+      }
     }
 
-    !dataLogbook
-      ? console.log("CREATE DATA", createData)
-      : console.log("EDIT DATA", editData);
+    // !dataLogbook
+    //   ? console.log("CREATE DATA", bodyData)
+    //   : console.log("EDIT DATA", bodyData);
 
-    // console.log(bodyData);
-
-    dispatch(
-      //if no document avail, create data. If avail edit it
-      !dataLogbook ? createLogbookData(bodyData) : createLogbookData(editData)
-    ).then((res) => {
+    dispatch(createLogbookData(bodyData)).then((res) => {
       if (res.status === HTTP_CODE.OK) {
         actions.setSubmitting(false);
-        successAlertNotification("Success", "Data Saved Successfully");
+        successAlertNotification("Success", "Data saved successfully");
         router.push({
           pathname: router.pathname,
           query: {
@@ -162,6 +164,7 @@ const EntryLogbook = ({
         toggle;
         setDayOff(false);
       }}
+      backdrop="static"
       size="lg"
     >
       <ModalHeader className="text-secondary bg-light" toggle={toggle}>
@@ -195,7 +198,7 @@ const EntryLogbook = ({
                     name="date"
                     type="text"
                     placeholder="Date"
-                    defaultValue={values.date.format("ddd, DD MMM YYYY")}
+                    defaultValue={values.date.format("dddd, DD MMM YYYY")}
                     onChange={handleChange("date")}
                     disabled
                   />
@@ -230,7 +233,7 @@ const EntryLogbook = ({
                       resize: "none",
                       height: "150px",
                     }}
-                    // value={values.activity}
+                    value={values.activity}
                     disabled={dayOff}
                   />
                   {/* {errors.activity && (
@@ -248,6 +251,10 @@ const EntryLogbook = ({
                 onClick={() => {
                   resetForm();
                   setDayOff(!dayOff);
+                  if (!dayOff) {
+                    setFieldValue("workType", "OFF");
+                    setFieldValue("activity", "OFF");
+                  }
                 }}
               >
                 DAY OFF
