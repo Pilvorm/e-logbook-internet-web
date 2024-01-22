@@ -1,7 +1,7 @@
 describe("login type", () => {
     it("positive test login", () => {
-        const username = "teguh.valencia@kalbe.co.id";
-        const password = "Kalbefarm4";
+        const username = "";
+        const password = "";
 
         cy.viewport(1280, 800);
 

@@ -56,14 +56,16 @@ const LogbookRow = ({
       <td
         style={{
           width: "15%",
-          color: currEntry?.status == null ? "#FF5B5C" : "#46A583",
+          color: dataLogbook?.status.includes("Approved")
+            ? "#46A583"
+            : "#FF5B5C",
         }}
       >
         {blockEntry || !currEntry?.activity
           ? ""
-          : currEntry?.status == null
-          ? `Waiting for Approval`
-          : currEntry?.status}
+          : dataLogbook?.status.includes("Approved")
+          ? "Approved"
+          : `Waiting for Approval`}
       </td>
     </tr>
   );

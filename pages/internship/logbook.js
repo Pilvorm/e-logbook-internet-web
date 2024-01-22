@@ -27,6 +27,7 @@ import {
   getLogbookData,
   submitLogbook,
 } from "redux/actions/logbook";
+import { CustomBadge } from "components/Badge/CustomBadge";
 
 import moment from "moment";
 
@@ -74,27 +75,38 @@ const EntryRow = ({
       </td>
       <td style={{ width: "2%" }}>
         {blockEntry ? "" : `${currEntry?.workType ?? "-"}`}
+        {/* {blockEntry ? (
+          ""
+        ) : (
+          <CustomBadge type="info" content={currEntry?.workType ?? "-"} />
+        )} */}
       </td>
       <td
         style={{
           width: "15%",
-          color: currEntry?.status == null ? "#FF5B5C" : "#46A583",
+          color: dataLogbook?.status.includes("Approved")
+            ? "#46A583"
+            : "#FF5B5C",
         }}
       >
         {blockEntry || !currEntry?.activity
           ? ""
-          : currEntry?.status == null
-          ? `Waiting for ${sessionData.user.MentorName}'s Approval`
-          : currEntry?.status}
+          : dataLogbook?.status.includes("Approved")
+          ? "Approved"
+          : dataLogbook?.status.includes("revision")
+          ? `Waiting for Revision`
+          : `Waiting for Approval`}
       </td>
       <td>
         {blockEntry ||
         isFutureDate ||
-        dataLogbook?.status.includes("approval") ? (
+        dataLogbook?.status.includes("approval") ||
+        dataLogbook?.status.includes("Approved") ? (
           ""
         ) : (
           <Button.Ripple
             outline={!currEntry?.activity}
+            id="entryBtn"
             color="primary"
             className="btn-next"
             onClick={toggleEditPopup}
@@ -123,6 +135,8 @@ const Logbook = (props) => {
   const { token, sessionData, query, dataLogbook, holidayDates } = props;
   const dispatch = useDispatch();
   const router = useRouter();
+
+  console.log(sessionData);
 
   useEffect(() => {
     dispatch(reauthenticate(token));
@@ -157,8 +171,6 @@ const Logbook = (props) => {
         ? moment(currentDate).format("MMMM YYYY")
         : moment(startDate).format("MMMM YYYY"))
   );
-
-  console.log(monthQuery);
 
   // Handle Chosen Month Days
   const setDays = (month) => {
@@ -213,7 +225,6 @@ const Logbook = (props) => {
     fillLogbookDays();
   }, []);
 
-  console.log("HUH");
   console.log(sessionData);
 
   console.log("DATA LOGBOOK");
@@ -262,7 +273,7 @@ const Logbook = (props) => {
                 pathname: router.pathname,
                 query: {
                   ...query,
-                  month: query.month,
+                  month: monthQuery,
                 },
               });
             } else {
@@ -350,7 +361,7 @@ const Logbook = (props) => {
           {(dataLogbook.data[0]?.status.includes("Draft") ||
             dataLogbook.data[0]?.status.includes("revision")) && (
             <Button.Ripple
-              id="saveBtn"
+              id="submitLogBtn"
               className="ml-1"
               color="primary"
               onClick={() => onSubmitHandler()}
