@@ -38,7 +38,9 @@ const EntryLogbookShortcut = ({
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const [dayOff, setDayOff] = useState(false);
+  const [dayOff, setDayOff] = useState(
+    currEntry.activity == "OFF" ? true : false
+  );
 
   const validationSchema = yup
     .object({
@@ -243,6 +245,10 @@ const EntryLogbookShortcut = ({
                 onClick={() => {
                   resetForm();
                   setDayOff(!dayOff);
+                  if (!dayOff) {
+                    setFieldValue("workType", "OFF");
+                    setFieldValue("activity", "OFF");
+                  }
                 }}
               >
                 DAY OFF

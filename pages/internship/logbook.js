@@ -130,8 +130,10 @@ const Logbook = (props) => {
 
   const { containerRef, isInView } = useOnScreen();
   const currentDate = new Date();
-  const startDate = moment("2023-02-20T12:00:00Z");
-  const endDate = moment("2024-02-16T12:00:00Z");
+  // const startDate = moment("2023-02-20T12:00:00Z");
+  // const endDate = moment("2024-02-16T12:00:00Z");
+  const startDate = moment(sessionData.user.StartDate);
+  const endDate = moment(sessionData.user.EndDate);
 
   // Set Period Function
   const setPeriod = (start, end) => {
@@ -150,8 +152,13 @@ const Logbook = (props) => {
     setPeriod(startDate, endDate)
   );
   const [monthQuery, setMonthQuery] = useState(
-    query?.month ?? moment(currentDate).format("MMMM YYYY")
+    query.month ??
+      (moment(currentDate) >= startDate && moment(currentDate) <= endDate
+        ? moment(currentDate).format("MMMM YYYY")
+        : moment(startDate).format("MMMM YYYY"))
   );
+
+  console.log(monthQuery);
 
   // Handle Chosen Month Days
   const setDays = (month) => {
@@ -418,12 +425,21 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     store.dispatch(reauthenticate(token));
 
+    const currentDate = new Date();
+    const startDate = moment(sessionData.user.StartDate);
+    const endDate = moment(sessionData.user.EndDate);
+
     const monthFilter = query.month
       ? query.month?.split(" ")[0]
-      : moment().format("MMMM");
+      : moment(currentDate) >= startDate && moment(currentDate) <= endDate
+      ? moment(currentDate).format("MMMM")
+      : moment(startDate).format("MMMM");
+
     const yearFilter = query.month
       ? query.month?.split(" ")[1]
-      : moment().format("YYYY");
+      : moment(currentDate) >= startDate && moment(currentDate) <= endDate
+      ? moment(currentDate).format("YYYY")
+      : moment(startDate).format("YYYY");
 
     await store.dispatch(
       getLogbookData({
@@ -437,10 +453,14 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     const currentMonth = query.month
       ? moment().month(query.month?.split(" ")[0]).format("M")
-      : moment().format("M");
+      : moment(currentDate) >= startDate && moment(currentDate) <= endDate
+      ? moment(currentDate).format("M")
+      : moment(startDate).format("M");
     const currentYear = query.month
       ? query.month?.split(" ")[1]
-      : moment().format("YYYY");
+      : moment(currentDate) >= startDate && moment(currentDate) <= endDate
+      ? moment(currentDate).format("YYYY")
+      : moment(startDate).format("YYYY");
 
     const res = await fetch(
       `https://api-harilibur.vercel.app/api?month=${currentMonth}&year=${currentYear}`

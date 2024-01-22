@@ -59,9 +59,11 @@ const LogbookRow = ({
           color: currEntry?.status == null ? "#FF5B5C" : "#46A583",
         }}
       >
-        {blockEntry || !ogIdx
+        {blockEntry || !currEntry?.activity
           ? ""
-          : currEntry?.status ?? `Waiting for Approval`}
+          : currEntry?.status == null
+          ? `Waiting for Approval`
+          : currEntry?.status}
       </td>
     </tr>
   );
@@ -82,6 +84,16 @@ const Dashboard = (props) => {
   const [currentDayEntry, setCurrentDayEntry] = useState(
     logbookDays[moment().format("D") - 1]
   );
+
+  const isWeekend = moment().day() == 6 || moment().day() == 0;
+
+  var holidayIndex = holidayDates
+    .map((date) => {
+      return date.holiday_date;
+    })
+    .indexOf(moment().format("YYYY-MM-D"));
+  const isHoliday = holidayIndex > -1;
+  const holidayName = holidayDates[holidayIndex]?.holiday_name ?? "";
 
   // console.log("OK");
   // console.log(currentDayEntry);
@@ -153,11 +165,23 @@ const Dashboard = (props) => {
             <span className="mt-3" style={{ color: "#B9B9C3" }}>
               Today's activity
             </span>
-            <span className="mt-2 mb-1">{logbookDays[moment().format("D") - 1].activity ?? "-"}</span>
+            <span className="my-2">
+              {isHoliday
+                ? holidayName
+                : isWeekend
+                ? "OFF"
+                : `${logbookDays[moment().format("D") - 1].activity ?? "-"}`}
+            </span>
             <span className="mb-3">
               <CustomBadge
                 type={"INFO"}
-                content={`${logbookDays[moment().format("D") - 1].workType ?? ""}`}
+                content={
+                  isHoliday
+                    ? "Holiday"
+                    : isWeekend
+                    ? "OFF"
+                    : `${logbookDays[moment().format("D") - 1].activity ?? "-"}`
+                }
               />
             </span>
             <Button.Ripple
@@ -166,6 +190,7 @@ const Dashboard = (props) => {
               color="primary"
               className="btn-next w"
               onClick={toggleEditPopup}
+              disabled={isWeekend}
             >
               <Edit size={18} />
               <span className="ml-50 align-middle d-sm-inline-block d-none">
