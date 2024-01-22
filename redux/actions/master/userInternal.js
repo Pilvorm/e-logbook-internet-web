@@ -1,10 +1,6 @@
 import axios from "axios";
 import {
   API_MASTER,
-  API_MASTER_USER,
-  USER_ROLE_URL,
-  API_USER_ROLES,
-  API_GLOBAL_SBU_URL,
 } from "constant";
 import { getHeaders } from "helpers/utils";
 import { store } from "redux/store";

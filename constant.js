@@ -156,30 +156,11 @@ export const AUTH_URL =
     ? process.env.NEXT_PUBLIC_API_SERVICE_NAME_AUTH_URL
     : process.env.NEXT_PUBLIC_API_AUTH_URL;
 
-export const USER_ROLE_URL =
-  typeof window === "undefined"
-    ? process.env.NEXT_PUBLIC_API_USER_ROLE
-    : process.env.NEXT_PUBLIC_API_USER_ROLE;
-
 export const AUTHORIZATION_URL =
   typeof window === "undefined"
     ? process.env.NEXT_PUBLIC_API_AUTHORIZATION
     : process.env.NEXT_PUBLIC_API_AUTHORIZATION;
 
-export const MODULE_URL =
-  typeof window === "undefined"
-    ? process.env.NEXT_PUBLIC_API_MODULE
-    : process.env.NEXT_PUBLIC_API_MODULE;
-
-export const API_GLOBAL_SBU_URL =
-  typeof window === "undefined"
-    ? process.env.NEXT_PUBLIC_CLIENT_API_GLOBAL_SBU
-    : process.env.NEXT_PUBLIC_CLIENT_API_GLOBAL_SBU;
-
-export const API_GLOBAL_COMPANY_URL =
-  typeof window === "undefined"
-    ? process.env.NEXT_PUBLIC_CLIENT_API_GLOBAL_COMPANY
-    : process.env.NEXT_PUBLIC_SERVER_API_GLOBAL_COMPANY;
 
 export const API_MASTER =
   "https://goshawk-trusty-vertically.ngrok-free.app/api";
@@ -190,7 +171,3 @@ export const API_LOGBOOK =
 export const API_USER_PROFILE =
   "http://kf-asd-userprofile-development-kf-asd-apiglobal-dev.apps.alpha.kalbe.co.id/api/UserProfile";
 
-export const NEXT_PUBLIC_GLOBAL_LOGGER_API =
-  typeof window === "undefined"
-    ? process.env.NEXT_PUBLIC_GLOBAL_LOGGER_API
-    : process.env.NEXT_PUBLIC_GLOBAL_LOGGER_API;

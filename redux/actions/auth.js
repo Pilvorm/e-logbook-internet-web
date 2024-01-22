@@ -1,5 +1,4 @@
 import axios from "axios";
-import { API_GLOBAL_SBU_URL } from "constant";
 import { getHeaders, removeCookie, setCookie } from "helpers/utils";
 import { AUTHENTICATE, DEAUTHENTICATE, STORE_USER_ROLES, CURRENT_USER_SITE } from "redux/types";
 import uniqBy from "lodash/uniqBy";
