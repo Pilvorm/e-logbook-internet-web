@@ -27,7 +27,6 @@ import {
   getLogbookData,
   submitLogbook,
 } from "redux/actions/logbook";
-import { getPermissionComponentByRoles } from "helpers/getPermission";
 
 import moment from "moment";
 
