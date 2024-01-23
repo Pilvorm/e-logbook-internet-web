@@ -192,7 +192,11 @@ const Dashboard = (props) => {
               color="primary"
               className="btn-next w"
               onClick={toggleEditPopup}
-              disabled={isWeekend}
+              disabled={
+                isHoliday ||
+                isWeekend ||
+                sessionData.Status.includes("Unconfirmed")
+              }
             >
               <Edit size={18} />
               <span className="ml-50 align-middle d-sm-inline-block d-none">
