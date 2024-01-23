@@ -182,7 +182,7 @@ const Dashboard = (props) => {
                     ? "Holiday"
                     : isWeekend
                     ? "OFF"
-                    : `${logbookDays[moment().format("D") - 1].activity ?? "-"}`
+                    : `${logbookDays[moment().format("D") - 1].workType ?? "-"}`
                 }
               />
             </span>
@@ -195,7 +195,7 @@ const Dashboard = (props) => {
               disabled={
                 isHoliday ||
                 isWeekend ||
-                sessionData.Status.includes("Unconfirmed")
+                sessionData.user.Status.includes("Unconfirmed")
               }
             >
               <Edit size={18} />

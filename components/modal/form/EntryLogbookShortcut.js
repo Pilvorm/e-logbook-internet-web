@@ -66,8 +66,8 @@ const EntryLogbookShortcut = ({
         schoolName: sessionData.user.SchoolName,
         facultyCode: sessionData.user.FacultyCode,
         facultyName: sessionData.user.Faculty,
-        month: monthQuery.split(" ")[0],
-        year: monthQuery.split(" ")[1],
+        month: currentMonth.split(" ")[0],
+        year: currentMonth.split(" ")[1],
         logbookDays: [
           {
             date: date.format("YYYY-MM-DD"),
@@ -89,8 +89,8 @@ const EntryLogbookShortcut = ({
         //Edit Existing Entry
         console.log("REPLACE EDIT AT INDEX " + ogIdx);
         bodyData.logbookDays[ogIdx] = {
-          logbookId: dataLogbook.id,
-          id: dataLogbook.logbookDays[ogIdx].id,
+          logbookId: dataLogbook?.id,
+          id: dataLogbook?.logbookDays[ogIdx].id,
           date: date.format("YYYY-MM-DD"),
           workType,
           activity,
@@ -99,7 +99,7 @@ const EntryLogbookShortcut = ({
         //Insert New Entry
         console.log("PUSH EDIT");
         bodyData.logbookDays.push({
-          logbookId: dataLogbook.id,
+          logbookId: dataLogbook?.id,
           date: date.format("YYYY-MM-DD"),
           workType,
           activity,
