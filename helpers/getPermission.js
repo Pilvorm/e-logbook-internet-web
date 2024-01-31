@@ -28,9 +28,9 @@ export const getPermissionComponent = (permittedRole) => {
   const similarRoles =
     Array.isArray(permittedRole) && permittedRole.includes(userRole);
 
-  console.log(permittedRole, "PERMITTED");
-  console.log(userRole);
-  console.log(similarRoles);
+  // console.log(permittedRole, "PERMITTED");
+  // console.log(userRole);
+  // console.log(similarRoles);
 
   return similarRoles ? similarRoles.length !== 0 : false;
 };

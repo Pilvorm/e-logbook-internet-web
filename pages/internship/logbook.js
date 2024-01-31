@@ -95,7 +95,9 @@ const EntryRow = ({
           ? "Approved"
           : dataLogbook?.status.includes("revision")
           ? `Waiting for Revision`
-          : `Waiting for Approval`}
+          : dataLogbook?.status.includes("approval")
+          ? `Waiting for Approval`
+          : `Draft`}
       </td>
       <td>
         {blockEntry ||
@@ -144,8 +146,6 @@ const Logbook = (props) => {
 
   const { containerRef, isInView } = useOnScreen();
   const currentDate = new Date();
-  // const startDate = moment("2023-02-20T12:00:00Z");
-  // const endDate = moment("2024-02-16T12:00:00Z");
   const startDate = moment(sessionData.user.StartDate);
   const endDate = moment(sessionData.user.EndDate);
 
@@ -176,18 +176,32 @@ const Logbook = (props) => {
   const setDays = (month) => {
     var daysInMonth = moment(month, "MMMM YYYY").daysInMonth();
     var arrDays = [];
+    var count = 0;
 
     while (daysInMonth) {
       var current = moment(`${month} ${daysInMonth}`, "MMMM YYYY DD");
-      // if (!(moment(current).day() == 6 || moment(current).day() == 0)) {
       arrDays.unshift(current);
-      // }
       daysInMonth--;
     }
     return arrDays;
   };
 
+  const isActiveDay = (days) => {
+    const isWeekend = moment(days).day() == 6 || moment(days).day() == 0;
+    var holidayIndex = holidayDates
+      .map((date) => {
+        return date.holiday_date;
+      })
+      .indexOf(days.format("YYYY-MM-D"));
+    const isHoliday = holidayIndex > -1;
+    return !isWeekend && !isHoliday;
+  };
+
   const [monthDays, setMonthDays] = useState(setDays(monthQuery));
+  const [activeDayCount, setActiveDayCount] = useState(
+    monthDays.filter(isActiveDay).length
+  );
+
   const [daysInMonth, setDaysInMonth] = useState(
     moment(monthQuery, "MMMM YYYY").daysInMonth()
   );
@@ -224,14 +238,6 @@ const Logbook = (props) => {
   useEffect(() => {
     fillLogbookDays();
   }, []);
-
-  console.log(sessionData);
-
-  console.log("DATA LOGBOOK");
-  console.log(dataLogbook);
-
-  // console.log("OK");
-  // console.log(logbookDays);
 
   const handleMonthChange = (value) => {
     router.push({
@@ -313,6 +319,7 @@ const Logbook = (props) => {
               department={`${sessionData.user.Dept}`}
               school={`${sessionData.user.SchoolName}`}
               faculty={`${sessionData.user.Faculty}`}
+              mentor={`${sessionData.user.MentorName}`}
               month={`${monthQuery}`}
               status={dataLogbook?.data[0]?.status ?? "Waiting for entry"}
               wfhCount={dataLogbook?.data[0]?.wfhCount ?? 0}
@@ -365,7 +372,9 @@ const Logbook = (props) => {
               className="ml-1"
               color="primary"
               onClick={() => onSubmitHandler()}
-              // disabled
+              disabled={
+                dataLogbook.data[0]?.logbookDays.length !== activeDayCount
+              }
             >
               <Play size={18} />
               <span className="align-middle ml-1 d-sm-inline-block d-none">

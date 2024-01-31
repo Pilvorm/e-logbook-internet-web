@@ -193,7 +193,7 @@ const MenuComponent = (props) => {
     }
   }, [menuVisibility]);
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 1200;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   return (
     <div

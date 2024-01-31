@@ -11,6 +11,7 @@ export const InternDetailCard = ({
   department,
   school,
   faculty,
+  mentor,
   month,
   status,
   wfhCount,
@@ -61,7 +62,9 @@ export const InternDetailCard = ({
         <div className="d-flex flex-column mt-2">
           <span>Working Days</span>
           <p className="">
-            <strong>{wfhCount} WFH / {wfoCount} WFO</strong>
+            <strong>
+              {wfhCount} WFH / {wfoCount} WFO
+            </strong>
           </p>
         </div>
         {/* <div className="d-flex flex-column mt-2">
@@ -73,9 +76,16 @@ export const InternDetailCard = ({
       </div>
 
       <div className="col-sm">
+        <div className="d-flex flex-column">
+          <span>Mentor</span>
+          <p className="">
+            <strong>{mentor}</strong>
+          </p>
+        </div>
         <Button.Ripple
           id="statusBtn"
           color="warning"
+          className="mt-2"
           onClick={toggleStatusModal}
         >
           <Eye size={18} />
@@ -89,12 +99,6 @@ export const InternDetailCard = ({
             pay={pay}
           />
         </Button.Ripple>
-        {/* <div className="d-flex flex-column mt-2">
-          <span>Pay</span>
-          <p className="">
-            <strong>{pay}</strong>
-          </p>
-        </div> */}
       </div>
     </div>
   );

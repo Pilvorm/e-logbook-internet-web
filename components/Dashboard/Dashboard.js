@@ -65,7 +65,11 @@ const LogbookRow = ({
           ? ""
           : dataLogbook?.status.includes("Approved")
           ? "Approved"
-          : `Waiting for Approval`}
+          : dataLogbook?.status.includes("revision")
+          ? `Waiting for Revision`
+          : dataLogbook?.status.includes("approval")
+          ? `Waiting for Approval`
+          : `Draft`}
       </td>
     </tr>
   );

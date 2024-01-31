@@ -116,7 +116,6 @@ const Home = ({
           logbookDays={logbookDays}
           holidayDates={holidayDates}
         />
-        <div className="mt-1"></div>
       </div>
     </>
   );
