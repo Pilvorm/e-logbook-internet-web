@@ -78,6 +78,32 @@ const LogbookRow = ({
 const Dashboard = (props) => {
   const { sessionData, monthDays, dataLogbook, logbookDays, holidayDates } =
     props;
+
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" && window.innerWidth < 992
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 992) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    };
+
+    // Check if window is available (client-side)
+    if (typeof window !== "undefined") {
+      handleResize(); // Initial check
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, [isMobile]);
+
+  // const isMobile = typeof window !== "undefined" && window.innerWidth < 1200;
+
   const [editPopup, setEditPopup] = useState(false);
   const toggleEditPopup = () => setEditPopup(!editPopup);
 
@@ -121,7 +147,7 @@ const Dashboard = (props) => {
   return (
     <div>
       <Row>
-        <Col md="8">
+        <Col lg="8">
           <Card tag={Col} className="shadow p-2 d-flex" style={{ gap: "4px" }}>
             <h4 className="fontweight-normal">Hello,</h4>
             <h3>{sessionData.user.Name}</h3>
@@ -134,6 +160,64 @@ const Dashboard = (props) => {
               — {sessionData.user.UserPrincipalName}
             </span>
           </Card>
+          {isMobile && (
+            <Card className="shadow p-2">
+              <div className="d-flex justify-content-between">
+                <span>{moment(new Date()).format("dddd, DD MMMM YYYY")}</span>
+                <span>{clock}</span>
+              </div>
+              <span className="mt-3" style={{ color: "#B9B9C3" }}>
+                Today's activity
+              </span>
+              <span className="my-2">
+                {isHoliday
+                  ? holidayName
+                  : isWeekend
+                  ? "OFF"
+                  : `${logbookDays[moment().format("D") - 1].activity ?? "-"}`}
+              </span>
+              <span className="mb-3">
+                <CustomBadge
+                  type={"INFO"}
+                  content={
+                    isHoliday
+                      ? "Holiday"
+                      : isWeekend
+                      ? "OFF"
+                      : `${
+                          logbookDays[moment().format("D") - 1].workType ?? "-"
+                        }`
+                  }
+                />
+              </span>
+              <Button.Ripple
+                outline={!logbookDays[moment().format("D") - 1]?.activity}
+                type="submit"
+                color="primary"
+                className="btn-next w"
+                onClick={toggleEditPopup}
+                disabled={
+                  isHoliday ||
+                  isWeekend ||
+                  sessionData.user.Status.includes("Unconfirmed")
+                }
+              >
+                <Edit size={18} />
+                <span className="ml-50 align-middle d-sm-inline-block d-none">
+                  Entry
+                </span>
+                <EntryLogbookShortcut
+                  visible={editPopup}
+                  toggle={toggleEditPopup}
+                  jsDate={moment()}
+                  currentMonth={currentMonth}
+                  sessionData={sessionData}
+                  dataLogbook={dataLogbook.data[0]}
+                  currEntry={logbookDays[moment().format("D") - 1]}
+                />
+              </Button.Ripple>
+            </Card>
+          )}
           <Card tag={Col} className="shadow p-2 d-flex" style={{ gap: "4px" }}>
             <h4 className="fontweight-normal">Logbook {currentMonth}</h4>
             <Table responsive className="border">
@@ -162,62 +246,66 @@ const Dashboard = (props) => {
             </Table>
           </Card>
         </Col>
-        <Col md="4">
-          <Card className="shadow p-2">
-            <div className="d-flex justify-content-between">
-              <span>{moment(new Date()).format("dddd, DD MMMM YYYY")}</span>
-              <span>{clock}</span>
-            </div>
-            <span className="mt-3" style={{ color: "#B9B9C3" }}>
-              Today's activity
-            </span>
-            <span className="my-2">
-              {isHoliday
-                ? holidayName
-                : isWeekend
-                ? "OFF"
-                : `${logbookDays[moment().format("D") - 1].activity ?? "-"}`}
-            </span>
-            <span className="mb-3">
-              <CustomBadge
-                type={"INFO"}
-                content={
-                  isHoliday
-                    ? "Holiday"
-                    : isWeekend
-                    ? "OFF"
-                    : `${logbookDays[moment().format("D") - 1].workType ?? "-"}`
-                }
-              />
-            </span>
-            <Button.Ripple
-              outline={!logbookDays[moment().format("D") - 1]?.activity}
-              type="submit"
-              color="primary"
-              className="btn-next w"
-              onClick={toggleEditPopup}
-              disabled={
-                isHoliday ||
-                isWeekend ||
-                sessionData.user.Status.includes("Unconfirmed")
-              }
-            >
-              <Edit size={18} />
-              <span className="ml-50 align-middle d-sm-inline-block d-none">
-                Entry
+        {!isMobile && (
+          <Col lg="4">
+            <Card className="shadow p-2">
+              <div className="d-flex justify-content-between">
+                <span>{moment(new Date()).format("dddd, DD MMMM YYYY")}</span>
+                <span>{clock}</span>
+              </div>
+              <span className="mt-3" style={{ color: "#B9B9C3" }}>
+                Today's activity
               </span>
-              <EntryLogbookShortcut
-                visible={editPopup}
-                toggle={toggleEditPopup}
-                jsDate={moment()}
-                currentMonth={currentMonth}
-                sessionData={sessionData}
-                dataLogbook={dataLogbook.data[0]}
-                currEntry={logbookDays[moment().format("D") - 1]}
-              />
-            </Button.Ripple>
-          </Card>
-        </Col>
+              <span className="my-2">
+                {isHoliday
+                  ? holidayName
+                  : isWeekend
+                  ? "OFF"
+                  : `${logbookDays[moment().format("D") - 1].activity ?? "-"}`}
+              </span>
+              <span className="mb-3">
+                <CustomBadge
+                  type={"INFO"}
+                  content={
+                    isHoliday
+                      ? "Holiday"
+                      : isWeekend
+                      ? "OFF"
+                      : `${
+                          logbookDays[moment().format("D") - 1].workType ?? "-"
+                        }`
+                  }
+                />
+              </span>
+              <Button.Ripple
+                outline={!logbookDays[moment().format("D") - 1]?.activity}
+                type="submit"
+                color="primary"
+                className="btn-next w"
+                onClick={toggleEditPopup}
+                disabled={
+                  isHoliday ||
+                  isWeekend ||
+                  sessionData.user.Status.includes("Unconfirmed")
+                }
+              >
+                <Edit size={18} />
+                <span className="ml-50 align-middle d-sm-inline-block d-none">
+                  Entry
+                </span>
+                <EntryLogbookShortcut
+                  visible={editPopup}
+                  toggle={toggleEditPopup}
+                  jsDate={moment()}
+                  currentMonth={currentMonth}
+                  sessionData={sessionData}
+                  dataLogbook={dataLogbook.data[0]}
+                  currEntry={logbookDays[moment().format("D") - 1]}
+                />
+              </Button.Ripple>
+            </Card>
+          </Col>
+        )}
       </Row>
     </div>
   );

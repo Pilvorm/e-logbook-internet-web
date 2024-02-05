@@ -60,8 +60,8 @@ import { LoadingIndicator } from "components/shared";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import useMobileDetector from "components/useMobileDetector"
-import 'bootstrap-icons/font/bootstrap-icons.css'
+import useMobileDetector from "components/useMobileDetector";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 const App = ({ Component, pageProps: { session, ...pageProps } }) => {
   const isMobileWidth = useMobileDetector();
@@ -77,7 +77,7 @@ const App = ({ Component, pageProps: { session, ...pageProps } }) => {
 
   // SSR loading state
   const { isPageLoading } = usePageLoading();
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const getLayout = Component.getLayout || ((page) => page);
 
@@ -94,8 +94,6 @@ const App = ({ Component, pageProps: { session, ...pageProps } }) => {
           <ProviderRedux store={store}>
             {isPageLoading ? (
               <LoadingIndicator />
-            ) : isMobileWidth ? (
-              <Component {...pageProps} />
             ) : (
               getLayout(<Component {...pageProps} />)
             )}
