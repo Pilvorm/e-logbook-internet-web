@@ -16,34 +16,7 @@ const InitialPage = ({ userRoles }) => {
     <>
       <div>
         <VerticalLayout newUser={true}>
-          <div className="h-100 w-100 d-flex flex-column justify-content-center align-items-center text-center align-middle">
-            <Carousel
-              showStatus={false}
-              showThumbs={false}
-              autoPlay
-              interval={3000}
-              infiniteLoop
-              width={1200}
-            >
-              <div>
-                <img src="/images/banner/newSlide1.jpg" />
-              </div>
-              <div>
-                <img src="/images/banner/newSlide2.jpg" />
-              </div>
-              <div>
-                <img src="/images/banner/newSlide3.jpg" />
-              </div>
-            </Carousel>
-            <h1 className="mt-2">Selamat Datang</h1>
-            <hr style={{ border: "1px solid #9cce34", width: "20%" }} />
-            <p style={{ width: "50%" }}>
-              Kalbe hadir untuk menyediakan solusi pelayanan kesehatan secara
-              terpadu untuk seluruh tahapan usia dan kondisi kesehatan melalui
-              produksi obat resep, obat bebas, produk kesehatan, produk nutrisi,
-              serta layanan kesehatan yang berkelanjutan
-            </p>
-          </div>
+          
         </VerticalLayout>
       </div>
     </>

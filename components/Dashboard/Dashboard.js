@@ -199,7 +199,8 @@ const Dashboard = (props) => {
                 disabled={
                   isHoliday ||
                   isWeekend ||
-                  sessionData.user.Status.includes("Unconfirmed")
+                  sessionData.user.Status.includes("Unconfirmed") ||
+                  moment(new Date()).isAfter(sessionData.user.EndDate)
                 }
               >
                 <Edit size={18} />
@@ -286,7 +287,8 @@ const Dashboard = (props) => {
                 disabled={
                   isHoliday ||
                   isWeekend ||
-                  sessionData.user.Status.includes("Unconfirmed")
+                  sessionData.user.Status.includes("Unconfirmed") ||
+                  moment(new Date()).isAfter(sessionData.user.EndDate)
                 }
               >
                 <Edit size={18} />

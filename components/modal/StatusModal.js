@@ -36,7 +36,7 @@ const StatusModal = ({ visible, toggle, status, pay }) => {
               />
             </h5>
             <span>
-              Rp {showPay ? pay.toLocaleString("de-DE") : "* * * * * * * *"}
+              Rp {showPay ? pay?.toLocaleString("de-DE") : "* * * * * * * *"}
             </span>
           </div>
         </div>
